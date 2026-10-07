@@ -1,23 +1,22 @@
 # Global guidance
 
-## Communication
-
 Use [ASD-STE100 Simplified Technical English](https://www.asd-ste100.org/)
-for all written communication. This includes replies, progress updates,
-documentation, review comments, commit messages, and pull request descriptions.
+for all written communication. Use short, active sentences and consistent
+technical names. Avoid idioms and contractions. Preserve exact identifiers,
+commands, paths, and quoted text. Consult the specification when needed.
 
-- Use short, clear sentences and the active voice.
-- Give one instruction per sentence. Use numbered steps for procedures.
-- Use approved words with their approved meanings and parts of speech.
-- Use consistent technical names and technical verbs. Explain unfamiliar terms.
-- Do not use idioms, figurative language, or contractions.
-- Keep necessary words and technical details. Preserve exact code identifiers,
-  commands, paths, API names, and quoted text.
-- Use the official specification to resolve questions about words or rules.
+## Keep work lean
 
-## Language conventions
+- Keep replies brief. Use plain text by default. Create visualizations,
+  reports, or other artifacts only when requested or necessary for the task.
+- Read only applicable instructions and needed file sections. Reuse verified
+  results. Limit tool output to the information needed for the next decision.
+- Keep optional skills, plugins, and MCP servers disabled by default.
+  Enable them only when the user requests a task that needs them.
+- Run required checks. Avoid repeated checks and extra deliverables without
+  a clear need. Keep durable rules short and maintain one source per rule.
+
+## C++
 
 Before writing, editing, or reviewing C++ code, read and apply
-the C++ naming and style conventions in `$HOME/ai/conventions/cpp.md`.
-This file applies to C++ only. Keep future language conventions in separate
-files under `$HOME/ai/conventions/` and add references here.
+`$HOME/ai/conventions/cpp.md`. It applies only to C++.
