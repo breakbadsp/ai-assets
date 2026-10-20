@@ -38,7 +38,8 @@ are unchanged. The [upstream MIT license](skills/LICENSE) applies to these skill
 
 The global links make the skills available to Codex and Claude Code in existing
 and future projects. These skills are manual-only (`disable-model-invocation`),
-so Claude reads them through the rules in `~/.claude/CLAUDE.md`. Codex users can
+so `AGENTS.md` tells agents when to read each one. Claude Code loads
+`AGENTS.md` through an import in `~/.claude/CLAUDE.md`. Codex users can
 select one with `/skills`. Full instructions load when a skill is
 used. Run `./install.sh` after adding another shared skill.
 Use `./install.sh --skills-only` to install skills while preserving existing

@@ -20,3 +20,24 @@ commands, paths, and quoted text. Consult the specification when needed.
 
 Before writing, editing, or reviewing C++ code, read and apply
 `$HOME/ai/conventions/cpp.md`. It applies only to C++.
+
+## Shared skills
+
+These skills apply to every project. Each is in `$HOME/ai/skills/<name>/SKILL.md`.
+They are manual-only. Read the matching `SKILL.md` when its situation occurs,
+and follow it.
+
+- `principle-laziness-protocol`: refactoring, judging diff size, or tempted to add abstractions.
+- `principle-subtract-before-you-add`: sequencing an addition, refactor, or rewrite.
+- `principle-build-the-lever`: any non-trivial edit, migration, or analysis.
+- `principle-prove-it-works`: before declaring a task done.
+- `principle-fix-root-causes`: debugging.
+- `principle-attack-the-premise`: two or more fixes sharing one premise have failed.
+- `principle-boundary-discipline`: validation, error handling, framework adapters.
+- `principle-encode-lessons-in-structure`: the same instruction or correction recurs.
+- `principle-minimize-reader-load`: code that is hard to trace.
+- `principle-model-the-domain`: stateful logic or heavy branching.
+- `principle-migrate-callers-then-delete-legacy-apis`: a new internal API while old callers remain.
+- `principle-test-behavior-not-implementation`: writing or changing tests.
+- `create-verification-skill`: building a project-local end-to-end verification skill.
+- `unslop`: cutting AI-style wording from prose you write.
