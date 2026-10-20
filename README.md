@@ -5,7 +5,7 @@ Shared instructions and language conventions for AI coding tools.
 - `AGENTS.md`: global agent guidance.
 - `conventions/cpp.md`: C++ naming, layout, and composition preferences.
 - `workspace/AGENTS.md`: guidance for the home development workspace.
-- `skills/`: six shared pstack principles for simpler code.
+- `skills/`: ten shared pstack principles for simpler code and verification.
 - `install.sh`: links these assets into the locations agents discover.
 
 ## Restore or install
@@ -31,7 +31,7 @@ The repository must be installed at `~/ai` because the guidance uses that path.
 
 ## Shared skills
 
-The six skills come from [Poteto's pstack](https://github.com/cursor/plugins/tree/a66a8931c2dd71f1ed6abf6a52b1898a9f389ae4/pstack),
+The ten skills come from [Poteto's pstack](https://github.com/cursor/plugins/tree/a66a8931c2dd71f1ed6abf6a52b1898a9f389ae4/pstack),
 at commit `a66a8931c2dd71f1ed6abf6a52b1898a9f389ae4`. Their instructions
 are unchanged. The [upstream MIT license](skills/LICENSE) applies to these skills.
 
