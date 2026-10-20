@@ -39,5 +39,11 @@ and follow it.
 - `principle-model-the-domain`: stateful logic or heavy branching.
 - `principle-migrate-callers-then-delete-legacy-apis`: a new internal API while old callers remain.
 - `principle-test-behavior-not-implementation`: writing or changing tests.
+- `principle-guard-the-context-window`: context filling up with large outputs or repeated reads.
+- `principle-sequence-verifiable-units`: multi-step work, sweeps, and stacked commits or PRs.
+- `principle-type-system-discipline`: designing types or signatures in statically typed code.
+- `principle-foundational-thinking`: choosing core types and data structures before logic.
+- `principle-redesign-from-first-principles`: a new requirement meets an existing design.
+- `blast-radius`: finding what a change could break elsewhere before it ships.
 - `create-verification-skill`: building a project-local end-to-end verification skill.
 - `unslop`: cutting AI-style wording from prose you write.
