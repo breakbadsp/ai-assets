@@ -17,8 +17,10 @@ fi
 
 for skill_dir in "$asset_root"/skills/*; do
   [[ -f "$skill_dir/SKILL.md" ]] || continue
-  sources+=("$skill_dir")
-  targets+=("$HOME/.agents/skills/$(basename -- "$skill_dir")")
+  for skills_home in "$HOME/.agents/skills" "$HOME/.claude/skills"; do
+    sources+=("$skill_dir")
+    targets+=("$skills_home/$(basename -- "$skill_dir")")
+  done
 done
 
 # Check every target before changing any links.
