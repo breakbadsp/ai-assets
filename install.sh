@@ -10,6 +10,17 @@ fi
 sources=("$asset_root/AGENTS.md" "$asset_root/workspace/AGENTS.md" "$asset_root/conventions/cpp.md")
 targets=("$HOME/.codex/AGENTS.md" "$HOME/AGENTS.md" "$HOME/.codex/conventions/cpp.md")
 
+if [[ "${1:-}" == "--skills-only" ]]; then
+  sources=()
+  targets=()
+fi
+
+for skill_dir in "$asset_root"/skills/*; do
+  [[ -f "$skill_dir/SKILL.md" ]] || continue
+  sources+=("$skill_dir")
+  targets+=("$HOME/.agents/skills/$(basename -- "$skill_dir")")
+done
+
 # Check every target before changing any links.
 for i in "${!targets[@]}"; do
   target="${targets[$i]}"
