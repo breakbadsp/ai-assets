@@ -6,7 +6,6 @@ disable-model-invocation: true
 
 # Comments
 
-
 - Explain why the code is written this way. The code already says what it
   does.
 - Write comments as sentences: a capital letter and a full stop. A short

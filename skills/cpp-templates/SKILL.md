@@ -6,12 +6,11 @@ disable-model-invocation: true
 
 # Templates
 
-
 | Rule | Summary |
 |------|---------|
 | **T.10 / T.11** | Constrain templates with concepts, standard ones where possible |
 | **T.43** | `using`, not `typedef` |
-| **T.120** | Template metaprogramming only when `constexpr` can't do the job |
+| **T.120** | Template metaprogramming only when `constexpr` cannot do the job |
 
 ```cpp
 template <std::unsigned_integral TNumber>

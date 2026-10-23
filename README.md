@@ -3,7 +3,7 @@
 Shared instructions and language conventions for AI coding tools.
 
 - `AGENTS.md`: global agent guidance.
-- `conventions/cpp.md`: C++ naming, layout, and composition preferences.
+- `conventions/cpp.md`: a pointer to the C++ skills, kept for existing references.
 - `workspace/AGENTS.md`: guidance for the home development workspace.
 - `skills/`: twenty shared pstack skills for simpler code, automation, and verification.
 - `skills/cpp-*`: the C++ coding standards, one skill per topic. `AGENTS.md`
@@ -38,9 +38,10 @@ The twenty skills come from [Poteto's pstack](https://github.com/cursor/plugins/
 at commit `a66a8931c2dd71f1ed6abf6a52b1898a9f389ae4`. Their instructions
 are unchanged. The [upstream MIT license](skills/LICENSE) applies to these skills.
 
-The sixteen `cpp-*` skills come from the Triangulator C++ coding standards
-(commit `790e580`), split into one skill per section. `cpp-principles` holds
-the introduction and `upstream-differences.md`.
+The sixteen `cpp-*` skills started as the Triangulator C++ coding standards
+(commit `790e580`) and the earlier `conventions/cpp.md`. They are now general
+C++ rules. Project facts stay in each project. The notes on how the
+standards differ from modern_exchng_cpp are in commit `40c70a2`.
 
 The global links make the skills available to Codex and Claude Code in existing
 and future projects. These skills are manual-only (`disable-model-invocation`),

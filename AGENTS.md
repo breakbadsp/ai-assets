@@ -18,25 +18,22 @@ commands, paths, and quoted text. Consult the specification when needed.
 
 ## C++
 
-Before writing, editing, or reviewing C++ code, read and apply
-`$HOME/ai/conventions/cpp.md`. It applies only to C++.
-
-The C++ standards are one skill per topic, in
-`$HOME/ai/skills/cpp-*/SKILL.md`. Read `cpp-principles` at the start of C++
-work. Then read only the skill for the step in hand:
+Before writing, editing, or reviewing C++ code, read the `cpp-principles`
+skill. The C++ rules are one skill per topic, in
+`$HOME/ai/skills/cpp-*/SKILL.md`. Read only the skill for the step in hand:
 
 - `cpp-naming-and-layout`: naming anything, braces, indentation.
+- `cpp-references-pointers-const`: a parameter or local variable: value, reference, or pointer; `const` or not.
+- `cpp-functions`: a function's design, return values, parameter count.
 - `cpp-error-handling`: a function that can fail; `throw`, `try`, `catch`, `noexcept`.
 - `cpp-assertions`: invariants, preconditions, `static_assert`.
-- `cpp-functions`: a function signature or body, parameter passing, return values.
-- `cpp-classes-and-composition`: a class or struct, special members, inheritance.
+- `cpp-classes-and-composition`: a class or struct, special members, inheritance, `const` member functions.
 - `cpp-resource-management`: ownership, RAII, smart pointers, C handles.
-- `cpp-expressions-and-statements`: initialization, casts, narrowing, integer arithmetic.
-- `cpp-constants-and-immutability`: `const`, `constexpr`, members that must not change.
+- `cpp-expressions-and-statements`: initialization, `constexpr` values, casts, narrowing, integer arithmetic.
 - `cpp-concurrency`: threads, locks, atomics, shared data.
 - `cpp-templates`: templates, concepts, type aliases.
 - `cpp-standard-library`: containers, text types, formatting, new dependencies.
-- `cpp-hot-path`: code that runs for every datagram or sample, performance changes.
+- `cpp-hot-path`: code that runs for each event at a high rate, performance changes.
 - `cpp-source-files`: headers, includes, namespaces.
 - `cpp-comments`: comments and test descriptions.
 - `cpp-checklist`: before C++ work is done, and in C++ review.

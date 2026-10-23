@@ -6,24 +6,23 @@ disable-model-invocation: true
 
 # Assertions
 
+Assertions catch programmer errors (TigerStyle). Keep `assert` enabled in
+the shipped binaries: do not define `NDEBUG`.
 
-Assertions catch programmer errors (TigerStyle). Our Makefile doesn't
-define `NDEBUG`, so `assert` stays enabled in the shipped binaries.
-
-- Assert preconditions, postconditions and invariants that a bug could
-  break. Examples: an index you're about to use is in range, a state
-  machine is in an allowed state, a count stays under its limit.
-- Assert both sides of a boundary. Assert what you expect to hold, and
-  also what must not happen.
+- Assert preconditions, postconditions, and invariants that a bug could
+  break. Examples: an index that you will use is in range, a state machine
+  is in an allowed state, a count stays under its limit.
+- Assert both sides of a boundary: what must be true, and also what must
+  not happen.
 - Split compound assertions: write `assert(a); assert(b);`, not
   `assert(a && b);`. When one fails, the message shows which condition was
   false.
 - Use `static_assert` for facts about the build: a wire-struct size, a
   limit that relates to another limit, `std::is_trivially_copyable_v`.
-- **Never assert on input from outside the process**: datagrams, files,
-  `/proc`, HTTP requests, config. Those are operating errors and get a
-  `std::expected`. A sampler on another host must never be able to crash
-  the collector.
+- **Never assert on input from outside the process:** network data, files,
+  `/proc`, HTTP requests, configuration. These are operating errors, and
+  they get a `std::expected` (`cpp-error-handling`). Input from another
+  process or host must never be able to stop this program.
 - An assertion must have no side effects.
 
 ```cpp
@@ -34,10 +33,10 @@ void ThreadTable::Erase(std::size_t p_slot)
 {
   assert(p_slot < slots_.size());
   assert(slots_[p_slot].live_);
-  // ...
+  slots_[p_slot] = Slot{};
 }
 ```
 
-C++26 contracts (`pre`, `post`, `contract_assert`) would replace some of
-this, but only GCC implements them so far. We'll keep using `assert` until
-both of our compilers support contracts.
+C++26 contracts (`pre`, `post`, `contract_assert`) can replace some of
+these assertions. Use them only when every compiler that the project
+supports implements them. Until then, use `assert`.

@@ -6,13 +6,11 @@ disable-model-invocation: true
 
 # Source files
 
-
 | Rule | Summary |
 |------|---------|
 | **SF.7** | No `using namespace` at global scope in a header |
 | **SF.8** | `#pragma once` on every header |
 | **SF.11** | Headers are self-contained: each includes what it uses |
 
-Most of this code is header-only, with one `main.cpp` per binary. Free
-functions defined in a header are `inline`. Put everything in
-`namespace triangulator`.
+- A free function defined in a header is `inline`.
+- Put all code in the project's namespace.
