@@ -6,6 +6,8 @@ Shared instructions and language conventions for AI coding tools.
 - `conventions/cpp.md`: C++ naming, layout, and composition preferences.
 - `workspace/AGENTS.md`: guidance for the home development workspace.
 - `skills/`: twenty shared pstack skills for simpler code, automation, and verification.
+- `skills/cpp-*`: the C++ coding standards, one skill per topic. `AGENTS.md`
+  routes each C++ task to its skill.
 - `install.sh`: links these assets into the locations agents discover.
 
 ## Restore or install
@@ -35,6 +37,10 @@ The repository must be installed at `~/ai` because the guidance uses that path.
 The twenty skills come from [Poteto's pstack](https://github.com/cursor/plugins/tree/a66a8931c2dd71f1ed6abf6a52b1898a9f389ae4/pstack),
 at commit `a66a8931c2dd71f1ed6abf6a52b1898a9f389ae4`. Their instructions
 are unchanged. The [upstream MIT license](skills/LICENSE) applies to these skills.
+
+The sixteen `cpp-*` skills come from the Triangulator C++ coding standards
+(commit `790e580`), split into one skill per section. `cpp-principles` holds
+the introduction and `upstream-differences.md`.
 
 The global links make the skills available to Codex and Claude Code in existing
 and future projects. These skills are manual-only (`disable-model-invocation`),

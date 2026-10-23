@@ -21,6 +21,26 @@ commands, paths, and quoted text. Consult the specification when needed.
 Before writing, editing, or reviewing C++ code, read and apply
 `$HOME/ai/conventions/cpp.md`. It applies only to C++.
 
+The C++ standards are one skill per topic, in
+`$HOME/ai/skills/cpp-*/SKILL.md`. Read `cpp-principles` at the start of C++
+work. Then read only the skill for the step in hand:
+
+- `cpp-naming-and-layout`: naming anything, braces, indentation.
+- `cpp-error-handling`: a function that can fail; `throw`, `try`, `catch`, `noexcept`.
+- `cpp-assertions`: invariants, preconditions, `static_assert`.
+- `cpp-functions`: a function signature or body, parameter passing, return values.
+- `cpp-classes-and-composition`: a class or struct, special members, inheritance.
+- `cpp-resource-management`: ownership, RAII, smart pointers, C handles.
+- `cpp-expressions-and-statements`: initialization, casts, narrowing, integer arithmetic.
+- `cpp-constants-and-immutability`: `const`, `constexpr`, members that must not change.
+- `cpp-concurrency`: threads, locks, atomics, shared data.
+- `cpp-templates`: templates, concepts, type aliases.
+- `cpp-standard-library`: containers, text types, formatting, new dependencies.
+- `cpp-hot-path`: code that runs for every datagram or sample, performance changes.
+- `cpp-source-files`: headers, includes, namespaces.
+- `cpp-comments`: comments and test descriptions.
+- `cpp-checklist`: before C++ work is done, and in C++ review.
+
 ## Shared skills
 
 These skills apply to every project. Each is in `$HOME/ai/skills/<name>/SKILL.md`.
