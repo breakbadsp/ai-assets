@@ -15,6 +15,18 @@ commands, paths, and quoted text. Consult the specification when needed.
   Enable them only when the user requests a task that needs them.
 - Run required checks. Avoid repeated checks and extra deliverables without
   a clear need. Keep durable rules short and maintain one source per rule.
+- Write docs only for what code cannot show: why x was chosen over y,
+  constraints, and how to operate or verify. Do not restate code in docs.
+- Give mechanical work (merge gates, data gathering, mechanical edits, tests
+  from a clear specification) to Haiku. By default, do not use Astra 6 or
+  reasoning effort above high. Only the following exceptions apply.
+- When the Claude usage limit is reached, continue on Codex. Opus 5.5 high
+  becomes GPT 6.1 Sol xhigh; Sonnet 5.5 becomes GPT 6.1 Sol at the same
+  effort; Haiku becomes GPT 6.1 Sol low. Use Astra 6 medium only when
+  required for this fallback.
+- Use Astra 6 medium for UI/UX design review. This role does not require a
+  different model family or an increase to high. It gives no Astra exception
+  for code review or build.
 
 ## C++
 
@@ -42,7 +54,10 @@ skill. The C++ rules are one skill per topic, in
 
 These skills apply to every project. Each is in `$HOME/ai/skills/<name>/SKILL.md`.
 They are manual-only. Read the matching `SKILL.md` when its situation occurs,
-and follow it.
+and follow it. At the start of non-trivial work, name the skills that apply
+and read them. Read them again at the step they govern: tests, blast radius
+before a shared change, proof before done. Give their names to subagents that
+do the work.
 
 - `principle-laziness-protocol`: refactoring, judging diff size, or tempted to add abstractions.
 - `principle-subtract-before-you-add`: sequencing an addition, refactor, or rewrite.
