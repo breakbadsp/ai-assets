@@ -5,7 +5,7 @@ Shared instructions and language conventions for AI coding tools.
 - `AGENTS.md`: global agent guidance.
 - `conventions/cpp.md`: a pointer to the C++ skills, kept for existing references.
 - `workspace/AGENTS.md`: guidance for the home development workspace.
-- `skills/`: twenty shared pstack skills for simpler code, automation, and verification.
+- `skills/`: shared PStack skills for simpler code, automation, and verification.
 - `skills/cpp-*`: the C++ coding standards, one skill per topic. `AGENTS.md`
   routes each C++ task to its skill.
 - `install.sh`: links these assets into the locations agents discover.
@@ -34,9 +34,23 @@ The repository must be installed at `~/ai` because the guidance uses that path.
 
 ## Shared skills
 
-The twenty skills come from [Poteto's pstack](https://github.com/cursor/plugins/tree/a66a8931c2dd71f1ed6abf6a52b1898a9f389ae4/pstack),
+The original twenty skills come from [Poteto's pstack](https://github.com/cursor/plugins/tree/a66a8931c2dd71f1ed6abf6a52b1898a9f389ae4/pstack),
 at commit `a66a8931c2dd71f1ed6abf6a52b1898a9f389ae4`. Their instructions
 are unchanged. The [upstream MIT license](skills/LICENSE) applies to these skills.
+
+`typescript-best-practices`, `architect`, and `visual-parity` are adapted from
+PStack commit `99b609a72323b70204eab407c622f436e858e112`. Each skill records its
+source and includes the upstream MIT license. The adaptations remove external
+skill and fixed model requirements. Visual parity is a standalone skill.
+
+To copy these three skills into a project, run:
+
+```sh
+python3 scripts/sync-pstack-skills.py /path/to/project
+python3 scripts/sync-pstack-skills.py /path/to/project --check
+```
+
+The command writes `.agents/skills/`. It does not remove extra files.
 
 The sixteen `cpp-*` skills started as the Triangulator C++ coding standards
 (commit `790e580`) and the earlier `conventions/cpp.md`. They are now general

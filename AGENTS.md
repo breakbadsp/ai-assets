@@ -79,3 +79,6 @@ do the work.
 - `blast-radius`: finding what a change could break elsewhere before it ships.
 - `create-verification-skill`: building a project-local end-to-end verification skill.
 - `unslop`: cutting AI-style wording from prose you write.
+- `typescript-best-practices`: reading or editing TypeScript and TSX.
+- `architect`: substantial design or redesign before implementation.
+- `visual-parity`: preserving an existing interface during migration.
