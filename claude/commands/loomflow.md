@@ -26,9 +26,9 @@ Decide the size first, before any work. In doubt, use the larger size. Pass the 
 The default merge gate model is Haiku 5.5, `low`. Use two model families for A and B when possible. Lower the effort, never the size, when the budget is low.
 
 - By default, do not use Astra 6 or effort above `high`. Only the following exceptions apply.
-- When the Claude usage limit is reached, continue on Codex. Opus 5.5 `high` becomes GPT 6.1 Sol `xhigh`; Sonnet 5.5 becomes GPT 6.1 Sol at the same effort; Haiku becomes GPT 6.1 Sol `low`. Use Astra 6 `medium` only when required for this fallback.
+- When the selected Claude model is unavailable, including due to a usage limit, continue on Codex. Opus 5.5 `high` becomes GPT 6.1 Sol `xhigh`; Sonnet 5.5 becomes GPT 6.1 Sol at the same effort; Haiku 5.5 becomes GPT 6.1 Terra `low`. Use Astra 6 `medium` only when required for this fallback.
 - UI/UX design review uses Astra 6 `medium`. This role does not require a different model family or an increase to `high`. It gives no Astra exception for code review or build.
-- Non-UI Major design review: use the Major Reviewer A model, of a family other than the builder's at `high` when available. Apply the usage-limit fallback above when needed.
+- Non-UI Major design review: use the Major Reviewer A model, of a family other than the builder's at `high` when available. Apply the model fallback above when needed.
 
 ## Build mode
 
@@ -53,7 +53,7 @@ Start `pr-test-merger` with the gate model and effort selected above, the PR num
 ## Limits
 
 - At most two review rounds and one gate run. A run never starts `/loomflow` again, and its agents never run it.
-- Pass each agent the model and effort selected above, including its usage-limit and UI/UX design-review exceptions.
+- Pass each agent the model and effort selected above, including its model fallback and UI/UX design-review exceptions.
 - Never merge with an open `blocker` or `major` issue (also a user-raised `critical`) or a failing check. Never use `--admin` or force.
 - If a result is ambiguous, stop and report.
 - On every exit, also a stop, append one tab-separated row to `${XDG_STATE_HOME:-$HOME/.local/state}/loomflow/<owner>-<repo>.tsv` (a new file starts with the header row): `date`, `mode`, `size`, `task_or_pr`, `rounds`, `blockers`, `majors`, `gate`, `outcome`, `models`, `peak_context`, `lesson`. Write `-` for an unknown value.
