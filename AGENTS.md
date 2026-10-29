@@ -17,12 +17,11 @@ commands, paths, and quoted text. Consult the specification when needed.
   a clear need. Keep durable rules short and maintain one source per rule.
 - Write docs only for what code cannot show: why x was chosen over y,
   constraints, and how to operate or verify. Do not restate code in docs.
-- Give mechanical work (merge gates, data gathering, mechanical edits, tests
-  from a clear specification) to Haiku. By default, do not use Astra 6 or
+- Give mechanical work and simple tasks to GPT 6.1 Terra at low effort. By default, do not use Astra 6 or
   reasoning effort above high. Only the following exceptions apply.
 - When the Claude usage limit is reached, continue on Codex. Opus 5.5 high
   becomes GPT 6.1 Sol xhigh; Sonnet 5.5 becomes GPT 6.1 Sol at the same
-  effort; Haiku becomes GPT 6.1 Sol low. Use Astra 6 medium only when
+  effort. Use Astra 6 medium only when
   required for this fallback.
 - Use Astra 6 medium for UI/UX design review. This role does not require a
   different model family or an increase to high. It gives no Astra exception

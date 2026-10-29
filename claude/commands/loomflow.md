@@ -1,63 +1,76 @@
 ---
-description: LoomFlow - build a task or review a PR - size first, then build, two reviewers, one fixer, one gate. Max two review rounds, then hand over to the user.
-argument-hint: [supervised] <task> | <PR number>
+description: LoomFlow - build a task or review a PR - size first, then build, review, one fixer, one gate. Max two review rounds, then hand over to the user.
+argument-hint: [supervised] <task> | <PR number> [full|scan]
 ---
 
-Run LoomFlow for $ARGUMENTS. You are the orchestrator.
-
-If the repository has `docs/loomflow.md`, follow it and the repository's `.claude/commands/loomflow.md` and `.claude/agents/`, not this file. Otherwise follow this file.
-
-## Modes
-
-- First argument is a PR number or URL: review mode. Start at "Review mode". Do not review or edit code yourself.
-- Otherwise: build mode, with the arguments as the task. Build, open the PR, then run review mode in the same run.
-- Autopilot is the default. A leading `supervised`, or a user request before the task starts, selects supervised mode: the user approves the plan or design note, and the start of the merge gate.
-
-## Sizes and models
-
-Decide the size first, before any work. In doubt, use the larger size. Pass the model and effort to every role.
-
-| Size | When | Builder | Reviewer A | Reviewer B | Analyzer |
-| --- | --- | --- | --- | --- | --- |
-| Small | at most 30 lines in at most 3 files, or documentation only, and no sensitive path | orchestrator | Sonnet 5.5, medium | Haiku 5.5, medium | Sonnet 5.5, medium |
-| Normal | most changes | orchestrator | GPT 6.1 Sol or Sonnet 5.5, medium | Haiku 5.5, medium | Sonnet 5.5, medium |
-| Major | a new feature or redesign; any change on a sensitive path; concurrency, storage, wire format, auth, or secrets; or more than 300 changed code lines | Opus 5.5, high; orchestrator when Major only for path or area | GPT 6.1 Sol, high (Opus 5.5, high, when Sol is unavailable) | Sonnet 5.5, high | Sonnet 5.5, high |
-
-The default merge gate model is Haiku 5.5, `low`. Use two model families for A and B when possible. Lower the effort, never the size, when the budget is low.
-
-- By default, do not use Astra 6 or effort above `high`. Only the following exceptions apply.
-- When the Claude usage limit is reached, continue on Codex. Opus 5.5 `high` becomes GPT 6.1 Sol `xhigh`; Sonnet 5.5 becomes GPT 6.1 Sol at the same effort; Haiku becomes GPT 6.1 Sol `low`. Use Astra 6 `medium` only when required for this fallback.
-- UI/UX design review uses Astra 6 `medium`. This role does not require a different model family or an increase to `high`. It gives no Astra exception for code review or build.
-- Non-UI Major design review: use the Major Reviewer A model, of a family other than the builder's at `high` when available. Apply the usage-limit fallback above when needed.
+Run LoomFlow for $ARGUMENTS. You are the orchestrator. If the first argument is a PR number or PR URL, run review mode from "Setup", and do not review or edit code yourself. Otherwise run build mode with the arguments as the task. A leading `supervised` selects supervised mode ("Modes" in the spec). The tool-neutral spec is `$HOME/ai/docs/loomflow.md`; this file is its Claude Code adapter. Read that shared specification before proceeding.
 
 ## Build mode
 
-1. State the size and the reason in one line. Create a worktree and branch (never the primary checkout or `master`).
-2. Small, Normal, and Major only for path or area: build, run the repository check, push, and open the PR (Normal: a plan of 3 to 5 lines in the PR body). Go to "Review mode" (Major review for a Major change).
-3. Major build (a new feature or redesign, or more than 300 changed code lines): stay thin. Do no file reads or edits yourself. Start one `general-purpose` builder with the builder model. It opens a draft PR whose body is the minimal design note (requirement; x over y and why; what is deleted; the one fact that makes it safe). It never merges, starts agents, or runs `/loomflow`.
-4. One design reviewer uses the model and effort selected above and posts `## Design review, round <n>`. Over-design is a finding. The builder revises once. Run round 2 only when a design `blocker` is not `FIXED`. Never run a third.
-5. Continue the same builder: build, prove (tests, short DOM facts; screenshots only for a major UI redesign), write the safety fact and its proof in the PR body, and mark the PR ready. Go to "Review mode" with the Major size.
+Follow "Build mode" in `$HOME/ai/docs/loomflow.md`. State the size and the reason in one line before any work. Create the worktree and branch as `AGENTS.md` "Git workflow" says (from the feature branch in a Major series).
 
-## Review mode
+- Small: delegate the build to GPT 6.1 Terra at `low`; then run review mode on the PR. Normal and Major only for path or area: build, run the repository check, push, and open the PR. Then run review mode on it.
+- Major build (a new feature or redesign, or more than 300 changed code lines): do no file reads or edits yourself. Start `pr-builder` with the builder model and effort. Pass the task, worktree path, branch, base branch, and phase `design`. Continue the same builder (SendMessage) for phases `revise` and `build`.
+  1. Start `pr-adversarial-reviewer` in mode `design` with the design reviewer model, the PR number, worktree path, and round number. Confirm a PR review that starts with `## Design review, round <n>`. If it is missing, stop and report.
+  2. If it lists a `blocker` or `major`, continue the builder with phase `revise`. Apply the design round 2 rule in the spec.
+  3. Continue the builder with phase `build`. Confirm that the PR is ready and that its head equals the builder's pushed SHA. Then run review mode on it with the Major size.
+- Major series: cancel the automatic CI runs of each series PR (`gh run cancel`), and write the trail file after each merge. For a major redesign series, stop after the last series PR merges and wait for the user ("Build mode" in `$HOME/ai/docs/loomflow.md`).
 
-1. `gh pr view <PR> --json number,state,headRefName,headRefOid,url`. Stop if the PR is closed or merged. Use the worktree that holds the PR branch. `git fetch origin`. HEAD must equal `headRefOid`, and `git status --porcelain` must print nothing. Otherwise stop and report.
-2. Start `pr-adversarial-reviewer` twice in parallel: Reviewer A (ID prefix `A`, lens: correctness, concurrency, memory safety, failure paths) and Reviewer B (ID prefix `B`, lens: requirements, tests, `AGENTS.md` rules, docs accuracy). Pass the PR number, worktree path, prefix, lens, round number, and head SHA. Reviewers also check the safety fact and proof that the PR body states. They run nothing.
-3. Confirm that both reviews start with `## Reviewer A, round <n>, head <SHA>` and `## Reviewer B, round <n>, head <SHA>`. If either is missing, stop and report. After each read-only role, HEAD and the worktree must be unchanged.
-4. With a `blocker` or `major` finding, start `pr-comment-analyzer` with pass type `review` and the round number. Check that its `## Analyzer, round <n>` comment gives an outcome for each such ID and that each `FIXED` commit is in the PR head.
-5. If round 1 changed the head, run round 2 on `git diff <round-1 head>..<head>` and the `FIXED` outcomes only. After round 2, an open `blocker` or `major` (not `FIXED` or `REBUTTED`) stops the run for manual handling.
+## Setup
+
+1. `gh pr view <PR> --json number,state,baseRefName,headRefName,headRefOid,url`. Stop if the PR is closed or merged.
+2. Use the worktree that holds the PR branch (`git worktree list`), never the primary checkout. Run `git fetch origin`. HEAD must equal `headRefOid` and `git status --porcelain` must be empty. Otherwise stop and report.
+3. Start roles with the Agent tool, or a delegation tool for another model family, and the `subagent_type` below. Select models and effort as described below; the models in the role files are only fallbacks. Read-only roles (reviewers, test merger) must leave HEAD and the worktree unchanged. If they did not, stop and report.
+
+## Model and reasoning selection
+
+Follow "Model and reasoning selection" in `$HOME/ai/docs/loomflow.md`: it sets the model and effort of each role from the size of the change. If that file is absent, stop and report that ai-assets must be updated.
+
+- By default, do not use Astra 6 or effort above `high`. Only the following exceptions apply.
+- When the Claude usage limit is reached, continue on Codex. Opus 5.5 `high` becomes GPT 6.1 Sol `xhigh`; Sonnet 5.5 becomes GPT 6.1 Sol at the same effort. Use Astra 6 `medium` only when required for this fallback.
+- UI/UX design review uses Astra 6 `medium`. This role does not require a different model family or an increase to `high`. It gives no Astra exception for code review or build.
+- Non-UI Major design review: use the Major Reviewer A model, of a family other than the builder's at `high` when available. Apply the usage-limit fallback above when needed.
+
+## Triage
+
+Pick the tier from `gh pr diff <PR> --name-only` and `gh pr diff <PR> | diffstat` (or count `+`/`-` lines). A tier named in the arguments wins. Never downgrade `full`.
+
+- `scan`: no changed file is on a sensitive path, and either all changed files are documentation (`*.md`, `*.txt`, images, `docs/`) or at most 30 lines change in at most 3 files. Sensitive paths: the list under "Review triage" in `AGENTS.md` (read it), plus `.github/workflows/`, build files (`Makefile`, `CMakeLists.txt`, `Cargo.toml`, `package.json`), lockfiles, auth or secrets, storage or wire formats. Documentation files on a sensitive path (for example `AGENTS.md`, `.claude/**/*.md`, `$HOME/ai/docs/loomflow.md`) are `full`.
+- `full`: everything else, and any doubt.
+
+State the tier and the reason in one line before continuing.
+
+## Scan tier
+
+Start one `pr-quick-reviewer` (mode `scan`, round 1). If it reports no `blocker` or `major`, go to the merge gate with tier `scan`. Otherwise run round 1 of the full tier from step 1 (both reviewers on the whole diff, the scan review's findings stay open and gate the analyzer in step 3), then continue with its step 2.
+
+## Full tier: rounds (at most two)
+
+1. Start in parallel, in one message: `pr-adversarial-reviewer` as Reviewer A and `pr-quick-reviewer` as Reviewer B, both mode `full`, with the models and effort for the change size. Pass the PR number, worktree path, round number, and head SHA. In round 2, also pass the round-1 head SHA. Round 2 reviews only the round-1 fixes and `git diff <round-1 head>..<head>`.
+2. Confirm both reviews reached GitHub (bodies starting with `## Review, round <n>, head <SHA>` and `## Quick review, round <n>, head <SHA>`). If either is missing, stop and report.
+3. If none of the round's reviews (including the scan review, after a scan escalation) lists a `blocker` or `major` finding, apply "Reuse passing checks" in `$HOME/ai/docs/loomflow.md` before waiting for CI. For checks still needed, use the runner's PR watch tool when available; otherwise use `timeout 540 gh pr checks <PR> --watch --fail-fast --interval 60` (Bash `timeout` 600000) for at most 45 minutes. If no check shows `fail`, go to the merge gate and skip the analyzer.
+4. Otherwise start `pr-comment-analyzer` with the analyzer model and effort for the change size. Pass the PR number, worktree path, and round number. It fixes or rebuts each finding from both reviews and each failed CI check, and pushes.
+5. If the head SHA changed and this was round 1, start round 2. Otherwise go to the merge gate.
+
+For a model of another family, use an available delegation tool with the prompt "Read `$HOME/ai/claude/agents/<role>.md` and follow it." plus the inputs. If none is available, use a configured vendor CLI with the same role instructions, inputs, and comment format. No such runner is configured by default.
+
+## Stop for manual handling
+
+After round 2's analyzer, if any `blocker` or `major` finding is still open (not `FIXED` or `REBUTTED`), or any user-raised `critical` issue is open, **do not merge and do not start another round**. Report the open issues and the PR URL as needing manual handling.
 
 ## Merge gate (once)
 
-Start `pr-test-merger` with the gate model and effort selected above, the PR number, worktree path, expected head SHA, and run number 1. Read its `## Merge gate, run 1, head <SHA>` comment. If it failed, do not retry and do not start a fix pass. Report the failing gates.
+Start `pr-test-merger` with the gate model and effort, with the PR number, worktree path, head SHA (HEAD must equal `headRefOid`), tier, base branch (`baseRefName`), and `series` for a Major series PR. If it merges, finish. If a gate fails, do not retry and do not start a fix pass. Report the failing gate for manual handling.
 
 ## Limits
 
-- At most two review rounds and one gate run. A run never starts `/loomflow` again, and its agents never run it.
+- Never start a third round or a second gate run.
 - Pass each agent the model and effort selected above, including its usage-limit and UI/UX design-review exceptions.
-- Never merge with an open `blocker` or `major` issue (also a user-raised `critical`) or a failing check. Never use `--admin` or force.
+- Never merge with an open `blocker` or `major` finding, or a failing check.
+- Neither this command nor its agents ever start `/loomflow` again. Only the user does.
 - If a result is ambiguous, stop and report.
-- On every exit, also a stop, append one tab-separated row to `${XDG_STATE_HOME:-$HOME/.local/state}/loomflow/<owner>-<repo>.tsv` (a new file starts with the header row): `date`, `mode`, `size`, `task_or_pr`, `rounds`, `blockers`, `majors`, `gate`, `outcome`, `models`, `peak_context`, `lesson`. Write `-` for an unknown value.
+- On every exit, also a stop, append the retro row ("Retro" in `$HOME/ai/docs/loomflow.md`).
 
-## Final report (under 10 lines)
+## Final report (under 8 lines)
 
-PR URL, size, design rounds, review rounds, findings per severity per round, outcomes, gate result, and the merge SHA or the open issues. Mark commits pushed after the last review as not reviewed.
+PR URL, size, tier and reason, design rounds, rounds run, findings per severity per round and reviewer, outcomes, gate result, and the merge SHA or the open issues. Mark commits pushed after the last review as not reviewed.
