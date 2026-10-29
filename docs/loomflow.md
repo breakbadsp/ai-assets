@@ -15,7 +15,7 @@
 ## Build mode
 
 - Decide the size first, before any work, from the planned change and the "When" column below. Review mode uses this size when it is larger than its own triage.
-- Small: delegate the build to GPT 6.1 Terra at `low`; it builds and opens a PR to the repository base branch. Normal: the orchestrator builds and opens a PR, with a plan of 3 to 5 lines in the PR body. A Major change that is Major only for its path or area is built as Normal, and keeps the Major review.
+- Small: delegate the build to GPT 6.1 Terra at `low`; it builds and opens a PR to the repository base branch. Normal: delegate the build to Sonnet 5.5 at `medium`; the builder opens a PR with a plan of 3 to 5 lines in the PR body. A Major change that is Major only for its path or area is built as Normal, and keeps the Major review.
 - Major build (a new feature or redesign, or more than 300 changed code lines): the orchestrator stays thin. It sizes, decides, delegates, and checks results. A fresh builder does all exploration, file reads, edits, and proof.
   1. The builder opens a draft PR. Its body is the minimal design note: the requirement; x over y and why; what is deleted; the one fact that makes the change safe. Decide only what blocks the first verifiable unit.
   2. One reviewer uses the design reviewer model and effort below. Over-design is a finding. The builder revises once. Run design round 2 only when a design `blocker` is not `FIXED`. Never run a third. An open design `blocker` after round 2 stops the run.
@@ -51,8 +51,8 @@ Pick the models from the size of the change. Pass the model and effort to every 
 | Size | When | Builder | Reviewer A | Reviewer B | Analyzer | Gate |
 | --- | --- | --- | --- | --- | --- | --- |
 | Small | `scan` | GPT 6.1 Terra, low | GPT 6.1 Terra, medium | none | GPT 6.1 Terra, medium | GPT 6.1 Terra, low |
-| Normal | other `full` changes | orchestrator | GPT 6.1 Sol or Sonnet 5.5, medium | GPT 6.1 Terra, medium | Sonnet 5.5, medium | GPT 6.1 Terra, low |
-| Major | a new feature or redesign; any change on a sensitive path; concurrency, storage, wire format, auth, or secrets; or more than 300 changed code lines | Opus 5.5, medium; orchestrator when Major only for path or area | GPT 6.1 Sol, high (Opus 5.5, medium, when Sol is unavailable) | Sonnet 5.5, high | Sonnet 5.5, high | GPT 6.1 Terra, low |
+| Normal | other `full` changes | Sonnet 5.5, medium (GPT 6.1 Sol, medium) | GPT 6.1 Sol or Sonnet 5.5, medium | GPT 6.1 Terra, medium | Sonnet 5.5, medium | GPT 6.1 Terra, low |
+| Major | a new feature or redesign; any change on a sensitive path; concurrency, storage, wire format, auth, or secrets; or more than 300 changed code lines | Opus 5.5, medium; Normal builder when Major only for path or area | GPT 6.1 Sol, high (Opus 5.5, medium, when Sol is unavailable) | Sonnet 5.5, high | Sonnet 5.5, high | GPT 6.1 Terra, low |
 
 - Changed code lines are added plus modified lines. Deleted test lines do not count: removing tests for removed behavior adds no risk, and counting it made cleanups Major.
 - Use two model families for A and B when possible. In any doubt between two sizes, use the larger one.
