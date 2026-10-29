@@ -27,9 +27,9 @@ Follow "Build mode" in `$HOME/ai/docs/loomflow.md`. State the size and the reaso
 Follow "Model and reasoning selection" in `$HOME/ai/docs/loomflow.md`: it sets the model and effort of each role from the size of the change. If that file is absent, stop and report that ai-assets must be updated.
 
 - By default, do not use Astra 6 or effort above `high`. Only the following exceptions apply.
-- When the Claude usage limit is reached, continue on Codex. Opus 5.5 `high` becomes GPT 6.1 Sol `xhigh`; Sonnet 5.5 becomes GPT 6.1 Sol at the same effort. Use Astra 6 `medium` only when required for this fallback.
+- When the selected Claude model is unavailable, including due to a usage limit, continue on Codex. Opus 5.5 `high` becomes GPT 6.1 Sol `xhigh`; Sonnet 5.5 becomes GPT 6.1 Sol at the same effort. Use Astra 6 `medium` only when required for this fallback.
 - UI/UX design review uses Astra 6 `medium`. This role does not require a different model family or an increase to `high`. It gives no Astra exception for code review or build.
-- Non-UI Major design review: use the Major Reviewer A model, of a family other than the builder's at `high` when available. Apply the usage-limit fallback above when needed.
+- Non-UI Major design review: use the Major Reviewer A model, of a family other than the builder's at `high` when available. Apply the model fallback above when needed.
 
 ## Triage
 
@@ -65,8 +65,8 @@ Start `pr-test-merger` with the gate model and effort, with the PR number, workt
 ## Limits
 
 - Never start a third round or a second gate run.
-- Pass each agent the model and effort selected above, including its usage-limit and UI/UX design-review exceptions.
-- Never merge with an open `blocker` or `major` finding, or a failing check.
+- Pass each agent the model and effort selected above, including its model fallback and UI/UX design-review exceptions.
+- Never merge with an open `blocker` or `major` finding, a user-raised `critical` issue, or a failing check. Never use `--admin` or force.
 - Neither this command nor its agents ever start `/loomflow` again. Only the user does.
 - If a result is ambiguous, stop and report.
 - On every exit, also a stop, append the retro row ("Retro" in `$HOME/ai/docs/loomflow.md`).

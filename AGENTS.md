@@ -19,7 +19,7 @@ commands, paths, and quoted text. Consult the specification when needed.
   constraints, and how to operate or verify. Do not restate code in docs.
 - Give mechanical work and simple tasks to GPT 6.1 Terra at low effort. By default, do not use Astra 6 or
   reasoning effort above high. Only the following exceptions apply.
-- When the Claude usage limit is reached, continue on Codex. Opus 5.5 high
+- When the selected Claude model is unavailable, including due to a usage limit, continue on Codex. Opus 5.5 high
   becomes GPT 6.1 Sol xhigh; Sonnet 5.5 becomes GPT 6.1 Sol at the same
   effort. Use Astra 6 medium only when
   required for this fallback.

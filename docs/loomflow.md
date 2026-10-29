@@ -57,12 +57,12 @@ Pick the models from the size of the change. Pass the model and effort to every 
 - Changed code lines are added plus modified lines. Deleted test lines do not count: removing tests for removed behavior adds no risk, and counting it made cleanups Major.
 - Use two model families for A and B when possible. In any doubt between two sizes, use the larger one.
 - By default, do not use Astra 6 or effort above `high`. Only the following exceptions apply.
-- When the Claude usage limit is reached, continue on Codex. Opus 5.5 `high` becomes GPT 6.1 Sol `xhigh`; Sonnet 5.5 becomes GPT 6.1 Sol at the same effort. Use Astra 6 `medium` only when required for this fallback.
+- When the selected Claude model is unavailable, including due to a usage limit, continue on Codex. Opus 5.5 `high` becomes GPT 6.1 Sol `xhigh`; Sonnet 5.5 becomes GPT 6.1 Sol at the same effort. Use Astra 6 `medium` only when required for this fallback.
 - UI/UX design review uses Astra 6 `medium`. This role does not require a different model family or an increase to `high`. It gives no Astra exception for code review or build.
 - Use GPT 6.1 Terra for mechanical work and simple tasks, including merge gates, data gathering, mechanical edits, and tests from a clear specification.
 - Lower the effort, never the size, when the token budget is low.
 - Major builder: a stronger model when unused budget expires soon, a cheaper one when the budget is low. Use other families where they fit.
-- Non-UI Major design review: use the Major Reviewer A model, of a family other than the builder's at `high` when available. Apply the usage-limit fallback above when needed.
+- Non-UI Major design review: use the Major Reviewer A model, of a family other than the builder's at `high` when available. Apply the model fallback above when needed.
 
 ## Review method
 
