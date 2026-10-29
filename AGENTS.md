@@ -17,13 +17,11 @@ commands, paths, and quoted text. Consult the specification when needed.
   a clear need. Keep durable rules short and maintain one source per rule.
 - Write docs only for what code cannot show: why x was chosen over y,
   constraints, and how to operate or verify. Do not restate code in docs.
-- Give mechanical work (merge gates, data gathering, mechanical edits, tests
-  from a clear specification) to Haiku. By default, do not use Astra 6 or
+- Give mechanical work and simple tasks to GPT 6.1 Terra at low effort. By default, do not use Astra 6 or
   reasoning effort above high. Only the following exceptions apply.
-- When the selected Claude model is unavailable, including due to a usage limit,
-  continue on Codex. Opus 5.5 high
+- When the selected Claude model is unavailable, including due to a usage limit, continue on Codex. Opus 5.5 high
   becomes GPT 6.1 Sol xhigh; Sonnet 5.5 becomes GPT 6.1 Sol at the same
-  effort; Haiku 5.5 becomes GPT 6.1 Terra low. Use Astra 6 medium only when
+  effort. Use Astra 6 medium only when
   required for this fallback.
 - Use Astra 6 medium for UI/UX design review. This role does not require a
   different model family or an increase to high. It gives no Astra exception
@@ -80,6 +78,3 @@ do the work.
 - `blast-radius`: finding what a change could break elsewhere before it ships.
 - `create-verification-skill`: building a project-local end-to-end verification skill.
 - `unslop`: cutting AI-style wording from prose you write.
-- `typescript-best-practices`: reading or editing TypeScript and TSX.
-- `architect`: substantial design or redesign before implementation.
-- `visual-parity`: preserving an existing interface during migration.

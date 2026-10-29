@@ -8,6 +8,7 @@ Shared instructions and language conventions for AI coding tools.
 - `skills/`: shared PStack skills for simpler code, automation, and verification.
 - `skills/cpp-*`: the C++ coding standards, one skill per topic. `AGENTS.md`
   routes each C++ task to its skill.
+- `docs/loomflow.md`, `claude/commands/loomflow.md`, and `claude/agents/`: the shared LoomFlow workflow and roles. Projects may use small command and role files that read these shared files.
 - `install.sh`: links these assets into the locations agents discover.
 
 ## Restore or install
