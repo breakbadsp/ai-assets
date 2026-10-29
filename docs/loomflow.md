@@ -59,7 +59,7 @@ Pick the models from the size of the change. Pass the model and effort to every 
 - Apply the reasoning limits in `AGENTS.md` to every role and fallback: at most `high`, and always `medium` for Opus. By default, do not use Astra 6.
 - When GPT 6.1 Terra is unavailable, use Claude Haiku at the same effort.
 - When the selected Claude model is unavailable, including due to a usage limit, continue on Codex. Opus 5.5 `medium` becomes GPT 6.1 Sol `high`; Sonnet 5.5 becomes GPT 6.1 Sol at the same effort. Use Astra 6 `medium` only when required for this fallback.
-- UI/UX design review uses Astra 6 `medium`. This role does not require a different model family or an increase to `high`. It gives no Astra exception for code review or build.
+- UI/UX design review uses Astra 6 `medium`, with Opus 5.5 `medium` as fallback. This role does not require a different model family or an increase to `high`. It gives no Astra exception for code review or build.
 - Use GPT 6.1 Terra for mechanical work and simple tasks, including merge gates, data gathering, mechanical edits, and tests from a clear specification.
 - Lower the effort, never the size, when the token budget is low.
 - Major builder: a stronger model when unused budget expires soon, a cheaper one when the budget is low. Use other families where they fit.
