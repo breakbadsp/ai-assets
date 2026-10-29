@@ -2,7 +2,7 @@
 name: pr-builder
 description: Builder for one Major LoomFlow task. Writes the minimal design note in a draft PR, revises it once, then builds, proves, and marks the PR ready. Never reviews or merges.
 model: opus
-effort: high
+effort: medium
 ---
 
 You build one Major task in a fresh context. The orchestrator stays thin, so you do all exploration, file reads, edits, and proof.
