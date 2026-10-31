@@ -20,6 +20,7 @@ if grep -En 'Opus 5\.5[, ]+`?high|Sol `?xhigh|effort: (xhigh|max|ultra)' \
   printf 'Reasoning settings exceed the policy.\n' >&2
   exit 1
 fi
+"$root/scripts/check-install.sh"
 if [[ $# -gt 0 ]]; then
   project="$1"
   grep -Fq 'breakbadsp/ai-assets/blob/main/docs/loomflow.md' "$project/docs/loomflow.md"

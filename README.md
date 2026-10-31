@@ -26,6 +26,8 @@ The installer creates these links:
 - `~/.codex/AGENTS.md` → `~/ai/AGENTS.md`
 - `~/AGENTS.md` → `~/ai/workspace/AGENTS.md`
 - `~/.codex/conventions/cpp.md` → `~/ai/conventions/cpp.md`
+- `~/.claude/commands/<name>.md` → matching files in `~/ai/claude/commands/`
+- `~/.claude/agents/<name>.md` → matching files in `~/ai/claude/agents/`
 - `~/.agents/skills/<skill-name>` → matching directories in `~/ai/skills/`
 - `~/.claude/skills/<skill-name>` → matching directories in `~/ai/skills/`
 
