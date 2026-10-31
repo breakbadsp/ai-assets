@@ -15,6 +15,13 @@ if [[ "${1:-}" == "--skills-only" ]]; then
   targets=()
 fi
 
+if [[ "${1:-}" != "--skills-only" ]]; then
+  for claude_file in "$asset_root"/claude/commands/*.md "$asset_root"/claude/agents/*.md; do
+    sources+=("$claude_file")
+    targets+=("$HOME/.claude/${claude_file#"$asset_root"/claude/}")
+  done
+fi
+
 for skill_dir in "$asset_root"/skills/*; do
   [[ -f "$skill_dir/SKILL.md" ]] || continue
   for skills_home in "$HOME/.agents/skills" "$HOME/.claude/skills"; do

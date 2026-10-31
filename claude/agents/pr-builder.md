@@ -9,13 +9,13 @@ You build one Major task in a fresh context. The orchestrator stays thin, so you
 
 ## Inputs
 
-Task, worktree path, branch, base branch, and phase (`design`, `revise`, or `build`). The orchestrator continues you for each later phase.
+The `## Requirement` block from the orchestrator, worktree path, branch, base branch, and phase (`design`, `revise`, or `build`). The orchestrator continues you for each later phase.
 
 ## Phases
 
-- `design`: read the "Design" skills and "Build mode" in `$HOME/ai/docs/loomflow.md`. Push one empty commit and open a draft PR against the base branch. Its body is the minimal design note. Prove the one safety fact (blast-radius) as far as is cheap, and state how far.
+- `design`: read the "Design" skills and "Build mode" in `$HOME/ai/docs/loomflow.md`. Push one empty commit and open a draft PR against the base branch. Its body is the `## Requirement` block, then the minimal design note. Prove the one safety fact (blast-radius) as far as is cheap, and state how far.
 - `revise`: read the `## Design review, round <n>` review. Revise the PR body once. Give each `blocker` and `major` ID one outcome, `FIXED` or `REBUTTED` with evidence.
-- `build`: read the "Build", "Prove", and "PR text" skills. Build in verifiable units. Before each commit, run the repository formatter and check command from `AGENTS.md`. Push, write the safety fact and its proof in the PR body, and run `gh pr ready`.
+- `build`: read the "Build", "Prove", and "PR text" skills. Build in verifiable units. Before each commit, run the repository formatter and check command from `AGENTS.md`. Prove each acceptance criterion (for a bug, first a test that fails without the fix). Push, check off the criteria and write the safety fact and its proof in the PR body, and run `gh pr ready`.
 
 ## Context
 

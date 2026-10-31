@@ -2,22 +2,31 @@
 
 - This is the tool-neutral build and review workflow. Use `git` and `gh`; take checks, standards, and sensitive paths from the repository's `AGENTS.md`.
 - Claude Code adapter: [command](../claude/commands/loomflow.md) and [role prompts](../claude/agents/).
-- Roles: orchestrator sizes, decides, and coordinates; builder (Major only) designs and builds; reviewers stay read-only; analyzer fixes or rebuts; test-and-merge runs the gate once.
+- Roles: orchestrator refines the requirement, sizes, decides, and coordinates; builder (Major only) designs and builds; reviewers stay read-only; analyzer fixes or rebuts; test-and-merge runs the gate once.
 - Only the user starts a run. Roles never start LoomFlow. Maximum: two review rounds and one merge gate.
 - `<state>` is `${XDG_STATE_HOME:-$HOME/.local/state}/loomflow`. Only the orchestrator writes there.
 
 ## Modes
 
-- `<task>`: build mode. Build, open the PR, then run review mode on it in the same run.
+- `<task>`: build mode. Refine the requirement, build, open the PR, then run review mode on it in the same run.
 - `<PR> [full|scan]`: review mode only.
 - Autopilot is the default. Supervised mode applies only when the user asks for it before the task starts. Then the user approves the plan or design note, and the start of the gate.
 
+## Requirement (build mode, step 0)
+
+- Before sizing, the orchestrator applies `$HOME/ai/skills/FiveCsOfRequirement/SKILL.md` to the task or bug report. It reads only what is needed to check the requirement. It does not design.
+- In every mode, autopilot too, ask the user about each gap that the skill says to ask about, in one message, and wait for the answers.
+- When an answer is obvious, do not ask. Record it as an assumption in the `## Requirement` block in the PR body, and list the assumptions in the thread before sizing.
+- Supervised mode: the user approves the refined requirement before sizing.
+- The `## Requirement` block is the source of truth for the run. Put it at the top of the PR body. Pass it to the builder in place of the raw task. Its acceptance criteria are the proof list for the builder and the requirement check for reviewers.
+- A change to the requirement after this step (from the user or a design review) updates the block in the PR body.
+
 ## Build mode
 
-- Decide the size first, before any work, from the planned change and the "When" column below. Review mode uses this size when it is larger than its own triage.
+- Decide the size after the requirement step, before any other work, from the planned change and the "When" column below. Review mode uses this size when it is larger than its own triage.
 - Small: delegate the build to GPT 6.1 Terra at `low`; it builds and opens a PR to the repository base branch. Normal: delegate the build to Sonnet 5.5 at `medium`; the builder opens a PR with a plan of 3 to 5 lines in the PR body. A Major change that is Major only for its path or area is built as Normal, and keeps the Major review.
 - Major build (a new feature or redesign, or more than 300 changed code lines): the orchestrator stays thin. It sizes, decides, delegates, and checks results. A fresh builder does all exploration, file reads, edits, and proof.
-  1. The builder opens a draft PR. Its body is the minimal design note: the requirement; x over y and why; what is deleted; the one fact that makes the change safe. Decide only what blocks the first verifiable unit.
+  1. The builder opens a draft PR. Its body is the `## Requirement` block and the minimal design note: x over y and why; what is deleted; the one fact that makes the change safe. Decide only what blocks the first verifiable unit.
   2. One reviewer uses the design reviewer model and effort below. Over-design is a finding. The builder revises once. Run design round 2 only when a design `blocker` is not `FIXED`. Never run a third. An open design `blocker` after round 2 stops the run.
   3. The builder builds, proves, writes the safety fact and its proof in the PR body, and marks the PR ready.
 - Major series (more than one PR): PRs target a feature branch and gate on the local check. The orchestrator cancels their automatic CI runs. After each merge, it writes the decisions and open items to the trail file, `<state>/<owner>-<repo>-<feature branch, "/" as "-">.md`, and continues from that file. One final sync PR to `master` runs full CI.
@@ -30,6 +39,7 @@
 
 Read each skill in `$HOME/ai/skills/` (with or without the `principle-` prefix) at the step it governs.
 
+- Requirement: FiveCsOfRequirement.
 - Design (Major): redesign-from-first-principles, foundational-thinking, model-the-domain, subtract-before-you-add, blast-radius.
 - Build: sequence-verifiable-units, laziness-protocol, test-behavior-not-implementation, minimize-reader-load, boundary-discipline, migrate-callers-then-delete-legacy-apis, type-system-discipline (C++).
 - When stuck: fix-root-causes; attack-the-premise after two failed fixes with one premise.
@@ -68,6 +78,7 @@ Pick the models from the size of the change. Pass the model and effort to every 
 ## Review method
 
 - Report only blocker and major findings. Check callers, readers, failure paths, boundaries, and regression coverage.
+- An acceptance criterion in the `## Requirement` block that the change does not meet, or does not prove, is a finding.
 - Try to disprove each finding before posting it. Drop it if a guard, caller, or test prevents the failure.
 - The deep reviewer checks PR claims and the fact that makes the change safe, including the fact and proof that the builder states. Measurements count only when error-free runs execute the changed code.
 - Reviewers run no builds or tests. They leave HEAD and worktree unchanged.
