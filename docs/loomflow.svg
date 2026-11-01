@@ -65,12 +65,14 @@ text { font-family:Inter,Arial,sans-serif; fill:var(--foreground,#172033) }
 <path d="M 930 1321 V 1345" class="edge fix"/>
 <path d="M 805 1278 H 770 V 1310 H 700 V 1345" class="edge optional"/>
 <path d="M 805 1370 H 750" class="edge optional"/>
-<path d="M 1055 1388 H 1070 V 1608 H 1055" class="edge stop"/>
-<text x="950" y="1500" class="label">Open after R2</text>
+<path d="M 930 1431 V 1455" class="edge fix"/>
+<path d="M 805 1478 H 775 V 1418 H 750" class="edge optional"/>
+<path d="M 930 1541 V 1565" class="edge stop"/>
+<text x="943" y="1558" class="label">Open after fix</text>
 <path d="M 750 1498 H 790 V 1608 H 805" class="edge stop"/>
-<text x="798" y="1545" class="label">Gate failed</text>
+<text x="650" y="1555" class="label">Gate failed</text>
 <path d="M 750 1400 H 790 V 1587 H 805" class="edge stop"/>
-<text x="798" y="1470" class="label">Check failed</text>
+<text x="650" y="1445" class="label">Check failed</text>
 <path d="M 540 1431 V 1455" class="edge "/>
 <circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 540 1431 V 1455"/></circle>
 <path d="M 540 1541 V 1565" class="edge "/>
@@ -179,6 +181,13 @@ text { font-family:Inter,Arial,sans-serif; fill:var(--foreground,#172033) }
 <text x="821" y="1388" class="name">Review round 2</text>
 <text x="821" y="1407" class="detail">Review fixes and new commits.</text>
 <text x="821" y="1424" class="detail">Check their callers. No R3.</text>
+</g>
+<g id="analyze2"><rect x="805" y="1455" width="250" height="86" rx="12" class="card fix"/>
+<rect x="805" y="1455" width="250" height="86" rx="12" class="pulse" style="animation-delay:12s"/>
+<text x="821" y="1474" class="tag">FINAL ANALYZER · IF FINDINGS</text>
+<text x="821" y="1498" class="name">Analyze round 2</text>
+<text x="821" y="1517" class="detail">Fix or rebut; no third review.</text>
+<text x="821" y="1534" class="detail">Clear → checks; open → stop.</text>
 </g>
 <g id="checks"><rect x="330" y="1345" width="420" height="86" rx="12" class="card "/>
 <rect x="330" y="1345" width="420" height="86" rx="12" class="pulse" style="animation-delay:12s"/>
