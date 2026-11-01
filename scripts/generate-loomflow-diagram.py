@@ -44,8 +44,9 @@ parts = [f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role=
 <desc id="desc">Six stages. Define: refine the requirement and size the change. Build: Small and Normal builds go straight to a PR; Major builds add a design note and design review. Prepare: verify the PR and select the scan or full review. Review: scan, or two full reviewers, then validate the reports and checks. Fix: one analyzer fixes or rebuts findings and failed checks; round 2 reuses the review stage once. Finish: one merge gate, then the merge, then the retrospective; every exit, including a stop, records it.</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/></marker></defs>
 <style>
-:root {{ --fg:var(--foreground,#172033); --mute:var(--muted-foreground,#58667b); --card-bg:var(--card,#f5f7fb); --blue:var(--primary,#3971ed); --amber:var(--warning,#bc7700); --red:var(--destructive,#cf4051) }}
-@media(prefers-color-scheme:dark) {{ :root {{ --fg:var(--foreground,#e6edf3); --mute:var(--muted-foreground,#9aa7b8); --card-bg:var(--card,#1a212c); --amber:var(--warning,#e0a030); --red:var(--destructive,#f06a78) }} }}
+:root {{ --bg:var(--background,#ffffff); --fg:var(--foreground,#172033); --mute:var(--muted-foreground,#58667b); --card-bg:var(--card,#f5f7fb); --blue:var(--primary,#3971ed); --amber:var(--warning,#bc7700); --red:var(--destructive,#cf4051) }}
+@media(prefers-color-scheme:dark) {{ :root {{ --bg:var(--background,#0f141b); --fg:var(--foreground,#e6edf3); --mute:var(--muted-foreground,#9aa7b8); --card-bg:var(--card,#1a212c); --amber:var(--warning,#e0a030); --red:var(--destructive,#f06a78) }} }}
+.canvas {{ fill:var(--bg) }}
 text {{ font-family:Inter,Arial,sans-serif; fill:var(--fg) }}
 .heading {{ font-size:32px;font-weight:750;letter-spacing:-1px }}
 .caption {{ font-size:15px;fill:var(--mute) }}
@@ -78,6 +79,8 @@ text {{ font-family:Inter,Arial,sans-serif; fill:var(--fg) }}
 @keyframes light {{ 0%,6%,100% {{opacity:0}} 1%,4% {{opacity:1}} }}
 @media(prefers-reduced-motion:reduce) {{ .pulse {{animation:none}} .dot {{display:none}} }}
 </style>
+<!-- The canvas keeps text and background from one theme, so no text can vanish on a mismatched page. -->
+<rect width="{W}" height="{H}" class="canvas"/>
 <text x="25" y="43" class="heading">LoomFlow</text>
 <text x="25" y="73" class="caption">Build a task or review a PR · refine, size, build, review, one fixer, one gate</text>
 <circle cx="32" cy="102" r="5" class="dot"/><text x="47" y="107" class="label">Animated flow</text>
