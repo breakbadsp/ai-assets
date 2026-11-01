@@ -15,7 +15,7 @@
 
 ## Requirement (build mode, step 0)
 
-- Before sizing, the orchestrator applies `$HOME/ai/skills/FiveCsOfRequirement/SKILL.md` to the task or bug report. It reads only what is needed to check the requirement. It does not design.
+- Before sizing, the orchestrator applies `$HOME/ai/skills/FiveCsReview/SKILL.md` to the task or bug report. It reads only what is needed to check the requirement. It does not design.
 - In every mode, autopilot too, ask the user about each gap that the skill says to ask about, in one message, and wait for the answers.
 - When an answer is obvious, do not ask. Record it as an assumption in the `## Requirement` block in the PR body, and list the assumptions in the thread before sizing.
 - Supervised mode: the user approves the refined requirement before sizing.
@@ -40,7 +40,7 @@
 
 Read each skill in `$HOME/ai/skills/` (with or without the `principle-` prefix) at the step it governs.
 
-- Requirement: FiveCsOfRequirement.
+- Requirement: FiveCsReview.
 - Design (Major): redesign-from-first-principles, foundational-thinking, model-the-domain, subtract-before-you-add, blast-radius.
 - Build: sequence-verifiable-units, laziness-protocol, test-behavior-not-implementation, minimize-reader-load, boundary-discipline, migrate-callers-then-delete-legacy-apis, type-system-discipline (C++).
 - When stuck: fix-root-causes; attack-the-premise after two failed fixes with one premise.

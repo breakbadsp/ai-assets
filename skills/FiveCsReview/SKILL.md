@@ -1,10 +1,10 @@
 ---
-name: FiveCsOfRequirement
+name: FiveCsReview
 description: "Solidify requirements before design. Check that they are complete, correct, concise, clear, and concrete."
 disable-model-invocation: true
 ---
 
-# FiveCsOfRequirement
+# FiveCsReview
 
 Before design, review and refine the requirement or bug report. Do not design or build in this step.
 
