@@ -12,7 +12,6 @@ for role in pr-builder pr-adversarial-reviewer pr-quick-reviewer pr-comment-anal
 done
 grep -Fxq '## Agent communication' "$spec"
 grep -Fq '"Agent communication"' "$command"
-grep -Fq 'GPT 6.1 Terra' "$spec"
 ! grep -q 'Haiku' "$spec" "$command"
 # Keep role defaults and fallback instructions within the reasoning policy.
 grep -Fq 'Never use reasoning effort above high' "$root/AGENTS.md"
@@ -22,6 +21,70 @@ if grep -En 'Opus 5\.5[, ]+`?high|Sol `?xhigh|effort: (xhigh|max|ultra)' \
   "$root/AGENTS.md" "$spec" "$command" "$root"/claude/agents/*.md; then
   printf 'Reasoning settings exceed the policy.\n' >&2
   exit 1
+fi
+# Model policy: coding work (build, review, tests, fixes, gate) uses Sonnet 5.5
+# at high effort or Opus 5.5 at medium effort. Terra runs only at high effort.
+# Noncoding model choices are not checked.
+fail() {
+  printf '%s\n' "$*" >&2
+  exit 1
+}
+frontmatter() {
+  awk -v key="$2" '
+    NR == 1 && $0 == "---" { inside = 1; next }
+    inside && $0 == "---" { exit }
+    inside && index($0, key ": ") == 1 { print substr($0, length(key) + 3); exit }
+  ' "$1"
+}
+check_role_model() {
+  local file="$1" model effort
+  test -s "$file" || fail "$file: missing role file."
+  model="$(frontmatter "$file" model)"
+  effort="$(frontmatter "$file" effort)"
+  case "$model/$effort" in
+    sonnet/high | opus/medium) ;;
+    *) fail "$file: coding role needs sonnet/high or opus/medium, found '$model/$effort'." ;;
+  esac
+}
+# Join wrapped lines so that "Terra" and its effort match across a line break.
+check_terra_effort() {
+  local file="$1"
+  if tr '\n' ' ' < "$file" |
+    grep -oiE 'terra( 6\.1)?[ ,]+(at |in |with )?`?(low|medium|xhigh|max)\b'; then
+    fail "$file: Terra may run only at high effort."
+  fi
+  if grep -iE '^model = "[^"]*terra' -A1 "$file" | grep -E '^model_reasoning_effort = "(low|medium|xhigh|max)"'; then
+    fail "$file: Terra may run only at high effort."
+  fi
+}
+has_text() {
+  tr '\n' ' ' < "$1" | tr -s ' ' | grep -Fq -- "$2"
+}
+roles=(pr-builder pr-adversarial-reviewer pr-quick-reviewer pr-comment-analyzer pr-test-merger)
+for role in "${roles[@]}"; do
+  check_role_model "$root/claude/agents/$role.md"
+done
+has_text "$root/AGENTS.md" 'Do not use Terra for coding work' ||
+  fail 'AGENTS.md must forbid Terra for coding work.'
+has_text "$root/AGENTS.md" 'Sonnet 5.5 at high' ||
+  fail 'AGENTS.md must name Sonnet 5.5 at high effort for coding work.'
+has_text "$root/AGENTS.md" 'GPT 6.1 Terra only at high' ||
+  fail 'AGENTS.md must limit Terra to high effort.'
+for file in "$root/AGENTS.md" "$spec" "$command" "$root"/claude/agents/*.md; do
+  check_terra_effort "$file"
+done
+# Every coding role in the model table uses Sonnet or Opus only.
+if grep -nE '^\| (Small|Normal|Major) \|' "$spec" | grep -iE 'terra|haiku|astra|sol\b'; then
+  fail 'The model table assigns a non-Sonnet, non-Opus model to a coding role.'
+fi
+if [[ $# -gt 0 ]]; then
+  project="$1"
+  for role in "${roles[@]}"; do
+    check_role_model "$project/.claude/agents/$role.md"
+  done
+  for file in "$project/AGENTS.md" "$project"/.claude/agents/*.md "$project"/.codex/agents/*.toml; do
+    test -f "$file" && check_terra_effort "$file"
+  done
 fi
 # The diagram is generated. Fail when the committed SVG is stale.
 svg="$root/docs/loomflow.svg"

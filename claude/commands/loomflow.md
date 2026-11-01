@@ -11,7 +11,7 @@ For both design and build, the person or agent responsible must consider the `ar
 
 First run "Requirement (build mode, step 0)" in `$HOME/ai/docs/loomflow.md`. Then follow "Build mode" there. State the size and the reason in one line before any work. Create the worktree and branch as `AGENTS.md` "Git workflow" says (from the feature branch in a Major series).
 
-- Small: delegate the build to GPT 6.1 Terra at `low`; then run review mode on the PR. Normal and Major only for path or area: delegate the build to the Normal builder; it runs the repository check, pushes, and opens the PR. Then run review mode on it.
+- Small: delegate the build to the Small builder; then run review mode on the PR. Normal and Major only for path or area: delegate the build to the Normal builder; it runs the repository check, pushes, and opens the PR. Then run review mode on it.
 - Major build (a new feature or redesign, or more than 300 changed code lines): do no file reads or edits yourself. Start `pr-builder` with the builder model and effort. Pass the `## Requirement` block, worktree path, branch, base branch, and phase `design`. Continue the same builder (SendMessage) for phases `revise` and `build`.
   1. Start `pr-adversarial-reviewer` in mode `design` with the design reviewer model, the PR number, worktree path, round number, and head SHA. In design round 2, also pass the original design report and the builder's revision result. Collect its direct report under "Agent communication" in the shared specification. A missing or mismatched report stops the run.
   2. If it lists a `blocker` or `major`, pass the complete design report to the builder with phase `revise`. Apply the design round 2 rule in the spec.
