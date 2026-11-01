@@ -20,6 +20,12 @@ if grep -En 'Opus 5\.5[, ]+`?high|Sol `?xhigh|effort: (xhigh|max|ultra)' \
   printf 'Reasoning settings exceed the policy.\n' >&2
   exit 1
 fi
+# The diagram is generated. Fail when the committed SVG is stale.
+svg="$root/docs/loomflow.svg"
+before="$(cksum < "$svg")"
+python3 "$root/scripts/generate-loomflow-diagram.py" > /dev/null
+test "$before" = "$(cksum < "$svg")"
+grep -Fq '(loomflow.svg)' "$spec"
 "$root/scripts/check-install.sh"
 if [[ $# -gt 0 ]]; then
   project="$1"

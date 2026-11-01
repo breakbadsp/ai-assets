@@ -1,6 +1,7 @@
 # LoomFlow
 
 - This is the tool-neutral build and review workflow. Use `git` and `gh`; take checks, standards, and sensitive paths from the repository's `AGENTS.md`.
+- Diagram: ![LoomFlow workflow diagram](loomflow.svg) This is a generated view of this file. This file is canonical. Regenerate with `python3 scripts/generate-loomflow-diagram.py` after a change to the workflow.
 - Claude Code adapter: [command](../claude/commands/loomflow.md) and [role prompts](../claude/agents/).
 - Roles: orchestrator refines the requirement, sizes, decides, and coordinates; builder (Major only) designs and builds; reviewers stay read-only; analyzer fixes or rebuts; test-and-merge runs the gate once.
 - Only the user starts a run. Roles never start LoomFlow. Maximum: two review rounds and one merge gate.
