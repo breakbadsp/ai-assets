@@ -84,6 +84,10 @@ text { font-family:Inter,Arial,sans-serif; fill:var(--fg) }
 <text x="1294" y="463" class="detail" style="font-size:12px">· bad or missing</text>
 <text x="1294" y="480" class="detail" style="font-size:12px">  direct report</text>
 <text x="1294" y="497" class="detail" style="font-size:12px">· ambiguous result</text>
+<text x="1294" y="514" class="detail" style="font-size:12px">· read-only role</text>
+<text x="1294" y="531" class="detail" style="font-size:12px">  changed HEAD</text>
+<text x="1294" y="548" class="detail" style="font-size:12px">· redesign series</text>
+<text x="1294" y="565" class="detail" style="font-size:12px">  done: user tests</text>
 <path d="M 412 197 L 436 197" class="edge "/>
 <circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 412 197 L 436 197"/></circle>
 <path d="M 676 197 L 700 197" class="edge "/>
@@ -111,9 +115,9 @@ text { font-family:Inter,Arial,sans-serif; fill:var(--fg) }
 <path d="M 870 654 L 870 682 Q 870 690 862 690 L 300 690 Q 292 690 292 698 L 292 710" class="edge cond"/>
 <text x="600" y="704" class="elabel " text-anchor="start">scan</text>
 <path d="M 262 800 L 262 830" class="edge fix"/>
-<text x="270" y="819" class="elabel fix" text-anchor="start">findings: escalate</text>
-<path d="M 412 755 L 812 755 Q 820 755 820 762.5 L 820 770" class="edge cond"/>
-<text x="426" y="749" class="elabel " text-anchor="start">no blocker / major</text>
+<text x="270" y="819" class="elabel fix" text-anchor="start">validated findings: escalate</text>
+<path d="M 412 755 L 548 755 Q 556 755 556 762.5 L 556 770" class="edge cond"/>
+<text x="426" y="749" class="elabel " text-anchor="start">scan report</text>
 <path d="M 412 875 L 418 875 Q 424 875 424 867 L 424 823 Q 424 815 430 815 L 436 815" class="edge "/>
 <circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 412 875 L 418 875 Q 424 875 424 867 L 424 823 Q 424 815 430 815 L 436 815"/></circle>
 <path d="M 676 815 L 700 815" class="edge "/>
@@ -125,7 +129,7 @@ text { font-family:Inter,Arial,sans-serif; fill:var(--fg) }
 <path d="M 202 976 L 202 920" class="edge fix"/>
 <text x="210" y="944" class="elabel fix" text-anchor="start">round 2</text>
 <text x="210" y="956" class="elabel fix" text-anchor="start">if round 1 changed head</text>
-<path d="M 412 1021 L 436 1021" class="edge "/>
+<path d="M 412 1021 L 436 1021" class="edge cond"/>
 <path d="M 870 860 L 870 1086 Q 870 1094 862 1094 L 604 1094 Q 596 1094 596 1102 L 596 1122" class="edge "/>
 <circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 870 860 L 870 1086 Q 870 1094 862 1094 L 604 1094 Q 596 1094 596 1102 L 596 1122"/></circle>
 <text x="878" y="879" class="elabel " text-anchor="start">checks pass</text>
@@ -145,6 +149,8 @@ text { font-family:Inter,Arial,sans-serif; fill:var(--fg) }
 <text x="978" y="1007" class="elabel stop" text-anchor="middle">the final round, or user critical</text>
 <path d="M 676 1167 L 1280 1167" class="edge stop"/>
 <text x="978" y="1153" class="elabel stop" text-anchor="middle">gate failed</text>
+<path d="M 900 508 L 900 535 Q 900 543 908 543 L 1280 543" class="edge stop"/>
+<text x="1090" y="557" class="elabel stop" text-anchor="start">series done: wait for user</text>
 <path d="M 1345 1332 L 1345 1425 Q 1345 1433 1337 1433 L 676 1433" class="edge stop"/>
 <g id="start"><rect x="172" y="152" width="240" height="90" rx="12" class="card "/>
 <rect x="172" y="152" width="240" height="90" rx="12" class="pulse" style="animation-delay:0s"/>
@@ -227,8 +233,8 @@ text { font-family:Inter,Arial,sans-serif; fill:var(--fg) }
 <rect x="172" y="710" width="240" height="90" rx="12" class="pulse" style="animation-delay:11.2s"/>
 <text x="186" y="729" class="tag">SCAN</text>
 <text x="186" y="752" class="name">One quick reviewer</text>
-<text x="186" y="772" class="detail">No blocker/major → checks.</text>
-<text x="186" y="789" class="detail">Findings → full round 1.</text>
+<text x="186" y="772" class="detail">Validate the report, then:</text>
+<text x="186" y="789" class="detail">none → checks; else full.</text>
 </g>
 <g id="full"><rect x="172" y="830" width="240" height="90" rx="12" class="card "/>
 <rect x="172" y="830" width="240" height="90" rx="12" class="pulse" style="animation-delay:11.2s"/>
@@ -260,7 +266,7 @@ text { font-family:Inter,Arial,sans-serif; fill:var(--fg) }
 </g>
 <g id="open"><rect x="436" y="976" width="240" height="90" rx="12" class="card "/>
 <rect x="436" y="976" width="240" height="90" rx="12" class="pulse" style="animation-delay:16.8s"/>
-<text x="450" y="995" class="tag">AFTER FIXES</text>
+<text x="450" y="995" class="tag">HEAD SAME, OR AFTER ROUND 2</text>
 <text x="450" y="1018" class="name">Anything still open?</text>
 <text x="450" y="1038" class="detail">Blocker, major, user critical?</text>
 <text x="450" y="1055" class="detail">No → gate. Yes → stop.</text>

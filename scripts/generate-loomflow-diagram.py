@@ -123,13 +123,13 @@ card('entry', 3, 0, 0, 'REVIEW MODE ENTRY', 'Existing PR', ['/loomflow <PR> [ful
 card('setup', 3, 1, 0, 'SETUP · ORCHESTRATOR', 'Verify the PR', ['Open PR · HEAD = headRefOid.', 'Clean worktree · fetch base.'], 6)
 card('triage', 3, 2, 0, 'TRIAGE · ORCHESTRATOR', 'Select the review tier', ['Scan only for small, safe diffs.', 'Sensitive path or doubt → full.'], 7)
 # 4 REVIEW
-card('scan', 4, 0, 0, 'SCAN', 'One quick reviewer', ['No blocker/major → checks.', 'Findings → full round 1.'], 8, 'cond')
+card('scan', 4, 0, 0, 'SCAN', 'One quick reviewer', ['Validate the report, then:', 'none → checks; else full.'], 8, 'cond')
 card('full', 4, 0, 1, 'FULL · ROUND 1 OR 2', 'Reviewers A + B', ['Same head SHA, in parallel.', 'Round 2: fixes + new commits.'], 8)
 card('validate', 4, 1, 0.5, 'ORCHESTRATOR', 'Validate the reports', ['PR, mode, round, SHA match.', 'Bad or missing report → stop.'], 9)
 card('checks', 4, 2, 0.5, 'CHECKS', 'Reuse + watch checks', ['Reuse passing results; watch CI.', 'A failed check is a blocker.'], 10)
 # 5 FIX
 card('analyzer', 5, 0, 0, 'ANALYZER · ONE', 'Fix or rebut', ['Every finding and failed check.', 'Test first · push · report IDs.'], 11, 'fix')
-card('open', 5, 1, 0, 'AFTER FIXES', 'Anything still open?', ['Blocker, major, user critical?', 'No → gate. Yes → stop.'], 12)
+card('open', 5, 1, 0, 'HEAD SAME, OR AFTER ROUND 2', 'Anything still open?', ['Blocker, major, user critical?', 'No → gate. Yes → stop.'], 12)
 # 6 GATE
 card('gate', 6, 1, 0, 'TEST AND MERGE · ONCE', 'Run the merge gate', ['SHA · clean tree · reuse · CI.', 'MERGEABLE + CLEAN, no retry.'], 13)
 card('merge', 6, 1, 1, 'PASS', 'Merge the head', ['gh merge --match-head-commit.', 'Never --admin or force.'], 14)
@@ -193,10 +193,10 @@ edge([B('triage', 50), (B('triage', 50)[0], tb + 36), (T('scan')[0], tb + 36), T
 label('scan', 600, tb + 50)
 # REVIEW
 edge([B('scan', -30), T('full', -30)], 'fix')
-label('findings: escalate', B('scan', -22)[0], B('scan')[1] + 19, 'fix')
+label('validated findings: escalate', B('scan', -22)[0], B('scan')[1] + 19, 'fix')
 sv = R('scan')
-edge([sv, (T('checks')[0], sv[1]), T('checks')], 'cond')
-label('no blocker / major', R('scan')[0] + 14, sv[1] - 6)
+edge([sv, (T('validate')[0], sv[1]), T('validate')], 'cond')
+label('scan report', R('scan')[0] + 14, sv[1] - 6)
 fv = R('full')
 edge([fv, (fv[0] + 12, fv[1]), (fv[0] + 12, L('validate')[1]), L('validate')], animate=True)
 edge([R('validate'), L('checks')], animate=True)
@@ -211,7 +211,7 @@ label('failed check', B('checks', -38)[0], b4 - 4, 'fix', 'end')
 edge([T('analyzer', -90), B('full', -90)], 'fix')
 label('round 2', T('analyzer', -82)[0], B('full')[1] + 24, 'fix')
 label('if round 1 changed head', T('analyzer', -82)[0], B('full')[1] + 36, 'fix')
-edge([R('analyzer'), L('open')])
+edge([R('analyzer'), L('open')], 'cond')
 # Checks pass go to the gate; they cross the open-issue stop line once.
 b5 = bus(5)
 gate_in = T('gate')
@@ -236,6 +236,9 @@ def stop(src, why):
 stop(R('design'), ['blocker open', 'after design', 'round 2'])
 stop(R('open'), ['blocker/major open after', 'the final round, or user critical'])
 stop(R('gate'), ['gate failed'])
+sy = b2 + 7
+edge([B('series', 212), (B('series', 212)[0], sy), (LANE_X, sy)], 'stop')
+label('series done: wait for user', 1090, sy + 14, 'stop')
 lane_mid = (lane_top + lane_bot) / 2
 rx, ry = R('retro')
 edge([(LANE_X + LANE_W / 2, lane_bot), (LANE_X + LANE_W / 2, ry), (rx, ry)], 'stop')
@@ -254,7 +257,7 @@ for i, (num, name, note, rows) in enumerate(STAGES):
 back.append(f'<rect x="{LANE_X}" y="{lane_top}" width="{LANE_W}" height="{lane_bot - lane_top}" rx="14" class="lane"/>')
 ly = lane_top + 24
 lane_lines = [('t', 'STOP'), ('n', 'Manual handling'), ('d', 'Report the open'), ('d', 'issue and the PR.'), ('g', ''),
-              ('d', 'Also stops on:'), ('d', '· closed/merged PR'), ('d', '· setup mismatch'), ('d', '· bad or missing'), ('d', '  direct report'), ('d', '· ambiguous result')]
+              ('d', 'Also stops on:'), ('d', '· closed/merged PR'), ('d', '· setup mismatch'), ('d', '· bad or missing'), ('d', '  direct report'), ('d', '· ambiguous result'), ('d', '· read-only role'), ('d', '  changed HEAD'), ('d', '· redesign series'), ('d', '  done: user tests')]
 for kind, text in lane_lines:
     if kind == 't':
         back.append(f'<text x="{LANE_X + 14}" y="{ly}" class="lanetag">{text}</text>'); ly += 24
