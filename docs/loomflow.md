@@ -43,7 +43,7 @@ Read each skill in `$HOME/ai/skills/` (with or without the `principle-` prefix) 
 
 - Requirement: FiveCsReview.
 - Bug investigation: fix-root-causes.
-- Design (Major): redesign-from-first-principles, foundational-thinking, model-the-domain, subtract-before-you-add, blast-radius.
+- Design (Major): redesign-from-first-principles, foundational-thinking, model-the-domain, subtract-before-you-add, laziness-protocol, blast-radius.
 - Build: sequence-verifiable-units, laziness-protocol, test-behavior-not-implementation, minimize-reader-load, boundary-discipline, migrate-callers-then-delete-legacy-apis, type-system-discipline (C++).
 - When stuck: fix-root-causes; attack-the-premise after two failed fixes with one premise.
 - Prove: prove-it-works, build-the-lever, create-verification-skill when the repository has none.
