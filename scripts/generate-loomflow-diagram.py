@@ -23,8 +23,7 @@ STAGES = [
     ('3', 'PREPARE', 'review mode', 1),
     ('4', 'REVIEW', 'rounds 1 and 2', 2),
     ('5', 'FIX', 'analyzer', 1),
-    ('6', 'GATE', 'run once', 2),
-    ('7', 'CLOSE', 'every exit', 1),
+    ('6', 'FINISH', 'gate, merge, retro', 1),
 ]
 HEADER = 138
 band_y, y = [], HEADER
@@ -42,7 +41,7 @@ def bus(stage):
 
 parts = [f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" aria-labelledby="title desc">
 <title id="title">LoomFlow — build and review workflow</title>
-<desc id="desc">Seven stages. Define: refine the requirement and size the change. Build: Small and Normal builds go straight to a PR; Major builds add a design note and design review. Prepare: verify the PR and select the scan or full review. Review: scan, or two full reviewers, then validate the reports and checks. Fix: one analyzer fixes or rebuts findings and failed checks; round 2 reuses the review stage once. Gate: one merge gate. Close: every exit, including a stop, records a retrospective.</desc>
+<desc id="desc">Six stages. Define: refine the requirement and size the change. Build: Small and Normal builds go straight to a PR; Major builds add a design note and design review. Prepare: verify the PR and select the scan or full review. Review: scan, or two full reviewers, then validate the reports and checks. Fix: one analyzer fixes or rebuts findings and failed checks; round 2 reuses the review stage once. Finish: one merge gate, then the merge, then the retrospective; every exit, including a stop, records it.</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/></marker></defs>
 <style>
 :root {{ --fg:var(--foreground,#172033); --mute:var(--muted-foreground,#58667b); --card-bg:var(--card,#f5f7fb); --blue:var(--primary,#3971ed); --amber:var(--warning,#bc7700); --red:var(--destructive,#cf4051) }}
@@ -57,7 +56,7 @@ text {{ font-family:Inter,Arial,sans-serif; fill:var(--fg) }}
 .band {{ stroke-width:1 }}
 .b1,.b2 {{ fill:#2563eb12;stroke:#2563eb40 }}
 .b3,.b4,.b5 {{ fill:#7c3aed10;stroke:#7c3aed38 }}
-.b6,.b7 {{ fill:#0f9d7a12;stroke:#0f9d7a40 }}
+.b6 {{ fill:#0f9d7a12;stroke:#0f9d7a40 }}
 .snum {{ fill:var(--fg);opacity:.9 }}
 .snumtext {{ font-size:15px;font-weight:800;fill:var(--card-bg);text-anchor:middle }}
 .sname {{ font-size:17px;font-weight:800;letter-spacing:.5px }}
@@ -132,9 +131,9 @@ card('analyzer', 5, 0, 0, 'ANALYZER · ONE', 'Fix or rebut', ['Every finding and
 card('open', 5, 1, 0, 'HEAD SAME, OR AFTER ROUND 2', 'Anything still open?', ['Blocker, major, user critical?', 'No → gate. Yes → stop.'], 12)
 # 6 GATE
 card('gate', 6, 1, 0, 'TEST AND MERGE · ONCE', 'Run the merge gate', ['SHA · clean tree · reuse · CI.', 'MERGEABLE + CLEAN, no retry.'], 13)
-card('merge', 6, 1, 1, 'PASS', 'Merge the head', ['gh merge --match-head-commit.', 'Never --admin or force.'], 14)
+card('merge', 6, 2, 0, 'PASS', 'Merge the head', ['gh merge --match-head-commit.', 'Never --admin or force.'], 14)
 # 7 CLOSE
-card('retro', 7, 1, 0, 'EVERY EXIT', 'Record the retro', ['One TSV row, also on a stop.', 'Then the final report.'], 15)
+card('retro', 6, 3, 0, 'EVERY EXIT', 'Record the retro', ['One TSV row, also on a stop.', 'Then the final report.'], 15)
 
 # ---- edges -----------------------------------------------------------
 edges = []   # drawn before the cards so that the connectors stay behind them
@@ -219,15 +218,13 @@ edge([B('checks', 50), (B('checks', 50)[0], b5), (gate_in[0] + 40, b5), (gate_in
 label('checks pass', B('checks', 58)[0], B('checks')[1] + 19)
 edge([B('open', -40), T('gate', -40)])
 label('none open', B('open', -32)[0], B('open')[1] + 24)
-# GATE
-edge([B('gate'), T('merge')], animate=True)
-label('pass', B('gate', 8)[0], B('gate')[1] + 19)
-# CLOSE
-edge([B('merge'), T('retro')], animate=True)
+# FINISH: gate -> merge -> retro in one row
+edge([R('gate'), L('merge')], animate=True)
+edge([R('merge'), L('retro')], animate=True)
 
 # Stop lane: one node. Every stop arrow joins it.
 lane_top = band_y[1][0] + PAD
-lane_bot = band_y[5][0] + band_y[5][1] - PAD
+lane_bot = cards['gate'][1] + CH + 22
 def stop(src, why):
     x, y = src
     edge([src, (LANE_X, y)], 'stop')
@@ -235,13 +232,16 @@ def stop(src, why):
         label(text, (x + LANE_X) / 2, y - 14 + i * 12 - 12 * (len(why) - 1), 'stop', 'middle')
 stop(R('design'), ['blocker open', 'after design', 'round 2'])
 stop(R('open'), ['blocker/major open after', 'the final round, or user critical'])
-stop(R('gate'), ['gate failed'])
+# The gate stop runs under the merge and retro cards, so it crosses no arrow.
+gy = cards['gate'][1] + CH + 8
+edge([B('gate'), (B('gate')[0], gy), (LANE_X, gy)], 'stop')
+label('gate failed: no retry', 1090, gy + 14, 'stop')
 sy = b2 + 7
 edge([B('series', 212), (B('series', 212)[0], sy), (LANE_X, sy)], 'stop')
 label('series done: wait for user', 1090, sy + 14, 'stop')
-lane_mid = (lane_top + lane_bot) / 2
 rx, ry = R('retro')
-edge([(LANE_X + LANE_W / 2, lane_bot), (LANE_X + LANE_W / 2, ry), (rx, ry)], 'stop')
+edge([(LANE_X, ry), (rx, ry)], 'stop')
+label('then retro', (rx + LANE_X) / 2, ry - 8, 'stop', 'middle')
 
 parts.extend(edges[:0])  # placeholder to keep the draw order explicit below
 

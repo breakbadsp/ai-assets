@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1424 1634" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1424 1368" role="img" aria-labelledby="title desc">
 <title id="title">LoomFlow — build and review workflow</title>
-<desc id="desc">Seven stages. Define: refine the requirement and size the change. Build: Small and Normal builds go straight to a PR; Major builds add a design note and design review. Prepare: verify the PR and select the scan or full review. Review: scan, or two full reviewers, then validate the reports and checks. Fix: one analyzer fixes or rebuts findings and failed checks; round 2 reuses the review stage once. Gate: one merge gate. Close: every exit, including a stop, records a retrospective.</desc>
+<desc id="desc">Six stages. Define: refine the requirement and size the change. Build: Small and Normal builds go straight to a PR; Major builds add a design note and design review. Prepare: verify the PR and select the scan or full review. Review: scan, or two full reviewers, then validate the reports and checks. Fix: one analyzer fixes or rebuts findings and failed checks; round 2 reuses the review stage once. Finish: one merge gate, then the merge, then the retrospective; every exit, including a stop, records it.</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/></marker></defs>
 <style>
 :root { --fg:var(--foreground,#172033); --mute:var(--muted-foreground,#58667b); --card-bg:var(--card,#f5f7fb); --blue:var(--primary,#3971ed); --amber:var(--warning,#bc7700); --red:var(--destructive,#cf4051) }
@@ -15,7 +15,7 @@ text { font-family:Inter,Arial,sans-serif; fill:var(--fg) }
 .band { stroke-width:1 }
 .b1,.b2 { fill:#2563eb12;stroke:#2563eb40 }
 .b3,.b4,.b5 { fill:#7c3aed10;stroke:#7c3aed38 }
-.b6,.b7 { fill:#0f9d7a12;stroke:#0f9d7a40 }
+.b6 { fill:#0f9d7a12;stroke:#0f9d7a40 }
 .snum { fill:var(--fg);opacity:.9 }
 .snumtext { font-size:15px;font-weight:800;fill:var(--card-bg);text-anchor:middle }
 .sname { font-size:17px;font-weight:800;letter-spacing:.5px }
@@ -65,15 +65,11 @@ text { font-family:Inter,Arial,sans-serif; fill:var(--fg) }
 <circle cx="38" cy="1007" r="14" class="snum"/><text x="38" y="1012.5" class="snumtext">5</text>
 <text x="28" y="1043" class="sname">FIX</text>
 <text x="28" y="1059" class="snote">analyzer</text>
-<rect x="12" y="1108" width="1248" height="238" rx="14" class="band b6"/>
-<circle cx="38" cy="1213" r="14" class="snum"/><text x="38" y="1218.5" class="snumtext">6</text>
-<text x="28" y="1249" class="sname">GATE</text>
-<text x="28" y="1265" class="snote">run once</text>
-<rect x="12" y="1374" width="1248" height="118" rx="14" class="band b7"/>
-<circle cx="38" cy="1419" r="14" class="snum"/><text x="38" y="1424.5" class="snumtext">7</text>
-<text x="28" y="1455" class="sname">CLOSE</text>
-<text x="28" y="1471" class="snote">every exit</text>
-<rect x="1280" y="298" width="130" height="1034" rx="14" class="lane"/>
+<rect x="12" y="1108" width="1248" height="118" rx="14" class="band b6"/>
+<circle cx="38" cy="1153" r="14" class="snum"/><text x="38" y="1158.5" class="snumtext">6</text>
+<text x="28" y="1189" class="sname">FINISH</text>
+<text x="28" y="1205" class="snote">gate, merge, retro</text>
+<rect x="1280" y="298" width="130" height="936" rx="14" class="lane"/>
 <text x="1294" y="322" class="lanetag">STOP</text>
 <text x="1294" y="346" class="name" style="font-size:14px">Manual handling</text>
 <text x="1294" y="368" class="detail" style="font-size:12px">Report the open</text>
@@ -135,11 +131,10 @@ text { font-family:Inter,Arial,sans-serif; fill:var(--fg) }
 <text x="878" y="879" class="elabel " text-anchor="start">checks pass</text>
 <path d="M 516 1066 L 516 1122" class="edge "/>
 <text x="524" y="1090" class="elabel " text-anchor="start">none open</text>
-<path d="M 556 1212 L 556 1242" class="edge "/>
-<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 556 1212 L 556 1242"/></circle>
-<text x="564" y="1231" class="elabel " text-anchor="start">pass</text>
-<path d="M 556 1332 L 556 1388" class="edge "/>
-<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 556 1332 L 556 1388"/></circle>
+<path d="M 676 1167 L 700 1167" class="edge "/>
+<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 676 1167 L 700 1167"/></circle>
+<path d="M 940 1167 L 964 1167" class="edge "/>
+<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 940 1167 L 964 1167"/></circle>
 <path d="M 1204 343 L 1280 343" class="edge stop"/>
 <text x="1242" y="305" class="elabel stop" text-anchor="middle">blocker open</text>
 <text x="1242" y="317" class="elabel stop" text-anchor="middle">after design</text>
@@ -147,11 +142,12 @@ text { font-family:Inter,Arial,sans-serif; fill:var(--fg) }
 <path d="M 676 1021 L 1280 1021" class="edge stop"/>
 <text x="978" y="995" class="elabel stop" text-anchor="middle">blocker/major open after</text>
 <text x="978" y="1007" class="elabel stop" text-anchor="middle">the final round, or user critical</text>
-<path d="M 676 1167 L 1280 1167" class="edge stop"/>
-<text x="978" y="1153" class="elabel stop" text-anchor="middle">gate failed</text>
+<path d="M 556 1212 L 556 1216 Q 556 1220 564 1220 L 1280 1220" class="edge stop"/>
+<text x="1090" y="1234" class="elabel stop" text-anchor="start">gate failed: no retry</text>
 <path d="M 900 508 L 900 535 Q 900 543 908 543 L 1280 543" class="edge stop"/>
 <text x="1090" y="557" class="elabel stop" text-anchor="start">series done: wait for user</text>
-<path d="M 1345 1332 L 1345 1425 Q 1345 1433 1337 1433 L 676 1433" class="edge stop"/>
+<path d="M 1280 1167 L 1204 1167" class="edge stop"/>
+<text x="1242" y="1159" class="elabel stop" text-anchor="middle">then retro</text>
 <g id="start"><rect x="172" y="152" width="240" height="90" rx="12" class="card "/>
 <rect x="172" y="152" width="240" height="90" rx="12" class="pulse" style="animation-delay:0s"/>
 <text x="186" y="171" class="tag">ENTRY · BUILD MODE</text>
@@ -278,22 +274,22 @@ text { font-family:Inter,Arial,sans-serif; fill:var(--fg) }
 <text x="450" y="1184" class="detail">SHA · clean tree · reuse · CI.</text>
 <text x="450" y="1201" class="detail">MERGEABLE + CLEAN, no retry.</text>
 </g>
-<g id="merge"><rect x="436" y="1242" width="240" height="90" rx="12" class="card "/>
-<rect x="436" y="1242" width="240" height="90" rx="12" class="pulse" style="animation-delay:19.6s"/>
-<text x="450" y="1261" class="tag">PASS</text>
-<text x="450" y="1284" class="name">Merge the head</text>
-<text x="450" y="1304" class="detail">gh merge --match-head-commit.</text>
-<text x="450" y="1321" class="detail">Never --admin or force.</text>
+<g id="merge"><rect x="700" y="1122" width="240" height="90" rx="12" class="card "/>
+<rect x="700" y="1122" width="240" height="90" rx="12" class="pulse" style="animation-delay:19.6s"/>
+<text x="714" y="1141" class="tag">PASS</text>
+<text x="714" y="1164" class="name">Merge the head</text>
+<text x="714" y="1184" class="detail">gh merge --match-head-commit.</text>
+<text x="714" y="1201" class="detail">Never --admin or force.</text>
 </g>
-<g id="retro"><rect x="436" y="1388" width="240" height="90" rx="12" class="card "/>
-<rect x="436" y="1388" width="240" height="90" rx="12" class="pulse" style="animation-delay:21s"/>
-<text x="450" y="1407" class="tag">EVERY EXIT</text>
-<text x="450" y="1430" class="name">Record the retro</text>
-<text x="450" y="1450" class="detail">One TSV row, also on a stop.</text>
-<text x="450" y="1467" class="detail">Then the final report.</text>
+<g id="retro"><rect x="964" y="1122" width="240" height="90" rx="12" class="card "/>
+<rect x="964" y="1122" width="240" height="90" rx="12" class="pulse" style="animation-delay:21s"/>
+<text x="978" y="1141" class="tag">EVERY EXIT</text>
+<text x="978" y="1164" class="name">Record the retro</text>
+<text x="978" y="1184" class="detail">One TSV row, also on a stop.</text>
+<text x="978" y="1201" class="detail">Then the final report.</text>
 </g>
-<text x="25" y="1532" class="caption">Supervised mode (only when asked): the user approves the requirement, the plan or design note, and the start of the gate.</text>
-<text x="25" y="1556" class="caption">At most two review rounds and one merge gate. No round 3, no second gate, no restart. Commits after the last review are reported as unreviewed.</text>
-<text x="25" y="1580" class="caption">Direct agent reports control the run. PR review and analyzer comments are audit copies. Only the user starts a run.</text>
-<text x="25" y="1608" class="label">Source: docs/loomflow.md (canonical) · generated by scripts/generate-loomflow-diagram.py</text>
+<text x="25" y="1266" class="caption">Supervised mode (only when asked): the user approves the requirement, the plan or design note, and the start of the gate.</text>
+<text x="25" y="1290" class="caption">At most two review rounds and one merge gate. No round 3, no second gate, no restart. Commits after the last review are reported as unreviewed.</text>
+<text x="25" y="1314" class="caption">Direct agent reports control the run. PR review and analyzer comments are audit copies. Only the user starts a run.</text>
+<text x="25" y="1342" class="label">Source: docs/loomflow.md (canonical) · generated by scripts/generate-loomflow-diagram.py</text>
 </svg>
