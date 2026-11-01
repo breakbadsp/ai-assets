@@ -8,7 +8,10 @@ for file in "$spec" "$command"; do
 done
 for role in pr-builder pr-adversarial-reviewer pr-quick-reviewer pr-comment-analyzer pr-test-merger; do
   test -s "$root/claude/agents/$role.md"
+  grep -Fq '"Agent communication"' "$root/claude/agents/$role.md"
 done
+grep -Fxq '## Agent communication' "$spec"
+grep -Fq '"Agent communication"' "$command"
 grep -Fq 'GPT 6.1 Terra' "$spec"
 ! grep -q 'Haiku' "$spec" "$command"
 # Keep role defaults and fallback instructions within the reasoning policy.

@@ -10,7 +10,9 @@ You triage the findings of one review round on one pull request and fix what is 
 
 ## Inputs
 
-PR number, worktree path, round number. Read the findings yourself from GitHub: the reviews that start with `## Review, round <n>` (IDs `R<n>-<i>`) and `## Quick review, round <n>` (IDs `Q<n>-<i>`), plus any PR comment from the user that raises an issue (ID `U-<n>`, severity as the user gives it, `major` if none). Read `gh pr checks <PR>` when you start and again before you push. Each check that shows `fail` is a `blocker` finding (ID `CI-<n>-<check name>`). Read its failed log (`gh run view <run-id> --log-failed`, last 200 lines) to find the cause.
+PR number, worktree path, round number, expected head SHA, and complete deduplicated findings from the orchestrator, including open scan findings and user-raised issues. Follow "Agent communication" in `$HOME/ai/docs/loomflow.md`. Use these direct inputs; do not fetch reviewer comments to recover findings. Stop and report missing inputs or a head mismatch.
+
+Read `gh pr checks <PR>` when you start and again before you push. Each check that shows `fail` is a `blocker` finding (ID `CI-<n>-<check name>`). Read its failed log (`gh run view <run-id> --log-failed`, last 200 lines) to find the cause.
 
 ## Procedure
 
@@ -22,7 +24,7 @@ PR number, worktree path, round number. Read the findings yourself from GitHub: 
 2. Before editing, read the rules `AGENTS.md` names for the file types you change. After editing, run the repository's formatter if `AGENTS.md` names one.
 3. Batch fixes into as few atomic commits as are sensible. Run the repository's check command from `AGENTS.md` before each commit and commit only when it passes. Write the message to a file, use `git commit -F`, explain the why, and end with the `Co-Authored-By` trailer your session provides.
 4. `git push` to the PR branch. Never push to `master`, never force push. Confirm `gh pr view <PR> --json headRefOid` equals `git rev-parse HEAD`. If not, stop and mark nothing `FIXED`.
-5. Post one PR comment starting with `## Analyzer, round <n>`, with one line per finding: ID, severity, outcome, and the commit SHA or the evidence. For reviewer findings, include the user impact, fix cost, and reason for the decision.
+5. Prepare the complete direct result under "Agent communication". Attempt one audit PR comment starting with `## Analyzer, round <n>`, with the same outcomes: every ID, severity, outcome, and commit SHA or evidence. For reviewer findings, include the user impact, fix cost, and reason for the decision. An audit post failure must not suppress the direct result.
 
 ## Limits
 
@@ -31,4 +33,4 @@ PR number, worktree path, round number. Read the findings yourself from GitHub: 
 
 ## Final message
 
-Counts per outcome, commit SHAs, and each `blocker` and `major` ID with its outcome, in under six lines.
+Return the complete analyzer result directly to the orchestrator, including every finding ID, its outcome and evidence, input and output head SHAs, remaining open findings, and the audit URL or posting error. Do not replace the report with counts or a comment URL.

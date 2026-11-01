@@ -76,6 +76,17 @@ Pick the models from the size of the change. Pass the model and effort to every 
 - Major builder: a stronger model when unused budget expires soon, a cheaper one when the budget is low. Use other families where they fit.
 - Non-UI Major design review: use the Major Reviewer A model, of a family other than the builder's when available, at `medium` for Opus or `high` for other models. Apply the model fallback above when needed.
 
+## Agent communication
+
+- Use direct agent messages or the runner's returned task result for all internal reports. The orchestrator passes the complete report to the next role. A completion notice, finding count, or comment URL alone is not a report.
+- Review reports contain the PR, role, mode, round, reviewed head SHA, and every finding, or explicit `No findings.` Each finding has its ID, severity, path and line, failure scenario, evidence, and fix direction. Use the existing `D`, `R`, and `Q` IDs. Reviewers work independently; do not send one reviewer's findings to another before both have reported.
+- The orchestrator requires each expected report for the correct PR, mode, round, and head SHA. Missing, incomplete, or mismatched direct reports stop the run. Never recover internal findings from GitHub comments.
+- Pass the deduplicated findings to the analyzer in its task input. Preserve every source ID and its evidence, including open scan findings. Pass design findings to the builder in the same way. Pass the analyzer's complete result and both SHAs to round 2 reviewers.
+- Analyzer results contain the PR, round, input and output head SHAs, each finding ID and its `FIXED`, `REBUTTED`, or `OUT-OF-SCOPE` outcome, commit or evidence, and all remaining open findings. Builder and gate results include the PR, head SHA, and phase or gate outcomes. Do not shorten reports to meet a final-message line limit.
+- The orchestrator still reads user-raised PR issues and passes them to the responsible role as `U-<n>` findings with the user's severity, or `major` if unspecified. Check them again before the gate. Roles still read PR metadata, the requirement, code, and CI as needed; review and analyzer comments are audit copies only.
+- Each role attempts its existing audit post with the same findings or outcomes. Include the audit URL, or the posting error, in the direct result. An audit posting failure does not block or clear a finding, change a gate result, or suppress the direct report. Report audit gaps or discrepancies to the user; direct results control the run.
+- Use the runner's message or task-result channel. If it has no direct result channel, stop and report; do not substitute GitHub comments or create a new message service.
+
 ## Review method
 
 - Report only blocker and major findings. Check callers, readers, failure paths, boundaries, and regression coverage.
@@ -83,15 +94,15 @@ Pick the models from the size of the change. Pass the model and effort to every 
 - Try to disprove each finding before posting it. Drop it if a guard, caller, or test prevents the failure.
 - The deep reviewer checks PR claims and the fact that makes the change safe, including the fact and proof that the builder states. Measurements count only when error-free runs execute the changed code.
 - Reviewers run no builds or tests. They leave HEAD and worktree unchanged.
-- Each reviewer posts a PR comment. A missing required review stops the run.
+- Collect each required direct review report under "Agent communication". PR comments provide the audit record.
 
 ## Rounds
 
 - For `scan`, no blocker/major means proceed to checks and gate.
 - A scan finding escalates to full round 1 with both reviewers on the whole diff. Keep the scan findings open for the analyzer even if later reviewers find none.
-- For `full`, collect both reviews on the same head SHA.
+- For `full`, collect both direct review reports on the same head SHA.
 - With no blocker/major, apply check reuse, then proceed to the gate. Stop at the first failed check.
-- With findings, start one analyzer on their deduplicated union. Check quick-reviewer findings with extra care.
+- With findings, start one analyzer with their deduplicated union in its task input. Use its direct result to update findings. Check quick-reviewer findings with extra care.
 - The analyzer reads CI at start and before pushing. Each failed check is a blocker: read its log and fix its cause. Never rerun CI.
 - Before fixing behavior, add a regression test and confirm failure without the fix when a cheap local target exists. Run only that test for this step.
 - If round 1 changes HEAD, run round 2 on the fixes and new commits only. Check their callers too. Pass the original and new SHAs.
@@ -125,6 +136,8 @@ Pick the models from the size of the change. Pass the model and effort to every 
 - Write `-` for an unknown value, such as `peak_context` when the runner does not report it. `lesson`: one change that would have prevented a stop or extra round, or `-`.
 
 ## PR comments
+
+These headers identify audit copies. Do not use these comments to transfer internal findings or decide whether a role has completed.
 
 - Design reviewer: `## Design review, round <n>`.
 - Reviewer: `## Review, round <n>, head <SHA>`.

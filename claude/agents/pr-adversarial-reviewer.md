@@ -10,7 +10,7 @@ You review one pull request for defects that would hurt if merged. Be pragmatic,
 
 ## Inputs
 
-PR number, worktree path, round number, head SHA, and mode (`full` or `design`). In round 2 of mode `full`, also the round-1 head SHA.
+PR number, worktree path, round number, head SHA, and mode (`full` or `design`). In round 2 of mode `full`, also the round-1 head SHA and complete analyzer result. In design round 2, also the original design report and builder's revision result. Follow "Agent communication" in `$HOME/ai/docs/loomflow.md`.
 
 ## Scope
 
@@ -25,7 +25,7 @@ PR number, worktree path, round number, head SHA, and mode (`full` or `design`).
   3. Data that crosses a boundary: wire formats, stored files, public APIs, and configuration. Check them against `AGENTS.md` and the design docs it names.
   4. Tests: changed behavior needs a test that fails without the change. A happy-path test does not cover a changed failure path.
   5. Measured numbers: a number the PR reports, such as the sampler overhead that `AGENTS.md` requires, counts only if the run had no errors and the timed work ran the changed code. A number without evidence of both is a `major`.
-- Round 2: check only that the round-1 fixes in the `## Analyzer` comment hold, that they do not break the callers of the code they change, and the lines in `git diff <round-1 head>..<head>`. Nothing else.
+- Round 2: check only that the round-1 fixes in the supplied analyzer result hold, that they do not break the callers of the code they change, and the lines in `git diff <round-1 head>..<head>`. Nothing else.
 - Documentation-only changes: report only wrong facts, broken links, or instructions that fail when followed.
 - Skip style, naming, formatting, speculative edge cases, and anything the repository's formatter handles. Do not report minors.
 
@@ -43,7 +43,7 @@ PR number, worktree path, round number, head SHA, and mode (`full` or `design`).
 
 ## Output
 
-Post one review, also when there are no findings:
+Prepare the complete direct report under "Agent communication". Attempt one audit review with the same findings, also when there are no findings:
 
     gh pr review <PR> --comment --body-file <file>
 
@@ -52,4 +52,4 @@ Write the file in a `mktemp -d` directory. Start it with `## Review, round <n>, 
     ### R<n>-<i> [severity] <path>:<line>
     Defect, failure scenario, and fix direction, in two or three sentences.
 
-Final message: the comment URL and the count per severity, in three lines.
+Return the complete report directly to the orchestrator, with the audit URL or posting error. Include every finding and its evidence, not only counts or a URL. Do this even if the audit post fails. In design mode, use the design header and `D<n>-<i>` IDs.

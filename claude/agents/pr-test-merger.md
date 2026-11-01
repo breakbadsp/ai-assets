@@ -9,7 +9,7 @@ You run the final gate for one pull request. You change no code. Never start age
 
 ## Inputs
 
-PR number, worktree path, expected head SHA, tier (`scan` or `full`), base branch `<base>`, and `series` for a PR into a Major feature branch.
+PR number, worktree path, expected head SHA, tier (`scan` or `full`), base branch `<base>`, and `series` for a PR into a Major feature branch. Follow "Agent communication" in `$HOME/ai/docs/loomflow.md`.
 
 ## Gates
 
@@ -37,8 +37,8 @@ Do not delete branches. Do not use `--admin`.
 
 ## Results comment
 
-Always post one PR comment, after the merge attempt: `gh pr comment <PR> --body-file <dir>/gate-results.md`. Start it with `## Merge gate, head <SHA>`. One line per gate (`pass`, `fail`, `skipped`, or `not run`), the last 40 lines of output under each failing gate, and the merge commit SHA or `Not merged`.
+Attempt one audit PR comment after the merge attempt: `gh pr comment <PR> --body-file <dir>/gate-results.md`. Start it with `## Merge gate, head <SHA>`. Include the direct gate outcomes: one line per gate (`pass`, `fail`, `skipped`, or `not run`), the last 40 lines of output under each failing gate, and the merge commit SHA or `Not merged`. An audit post failure does not change the gate result or suppress its direct report.
 
 ## Final message
 
-One line per gate, the comment URL, and the merge SHA or failing gates, in under 8 lines.
+Return the PR, expected head SHA, each gate outcome and evidence, merge SHA or failing gates, and audit URL or posting error directly to the orchestrator. Do not omit failure evidence to meet a line limit.

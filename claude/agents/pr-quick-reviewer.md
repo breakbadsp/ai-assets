@@ -10,14 +10,14 @@ You review one pull request with fresh context, quickly. You are the second revi
 
 ## Inputs
 
-PR number, worktree path, round number, head SHA, mode (`scan` or `full`). In round 2, also the round-1 head SHA.
+PR number, worktree path, round number, head SHA, mode (`scan` or `full`). In round 2, also the round-1 head SHA and complete analyzer result. Follow "Agent communication" in `$HOME/ai/docs/loomflow.md`.
 
 ## Scope
 
 - Read the diff (`gh pr diff`) and only the surrounding code you need. Read the repository's `AGENTS.md` (or README) for its rules.
 - Mode `scan`: the PR looks small or documentation-only. Read the whole diff once. Report only `blocker`s, plus wrong facts, broken links, or instructions that fail when followed in documentation. Also report it if the PR is not as small as it looks (for example a one-line change that alters behavior elsewhere).
 - Mode `full`: you run beside the main reviewer. Do not read its review before posting yours. Check correctness, failure paths, callers of changed code, and missing tests for changed behavior. If the PR body states a safety fact and its proof, check that the proof ran the changed code. If the PR body has a `## Requirement` block, report an acceptance criterion that the change does not meet or prove.
-- Round 2: check only the round-1 fixes in the `## Analyzer` comment and `git diff <round-1 head>..<head>`.
+- Round 2: check only the round-1 fixes in the supplied analyzer result and `git diff <round-1 head>..<head>`.
 - Skip style, naming, formatting, and speculative edge cases. Do not report minors.
 
 ## Rules
@@ -34,7 +34,7 @@ PR number, worktree path, round number, head SHA, mode (`scan` or `full`). In ro
 
 ## Output
 
-Post one review, also when there are no findings:
+Prepare the complete direct report under "Agent communication". Attempt one audit review with the same findings, also when there are no findings:
 
     gh pr review <PR> --comment --body-file <file>
 
@@ -43,4 +43,4 @@ Write the file in a `mktemp -d` directory. Start it with `## Quick review, round
     ### Q<n>-<i> [severity] <path>:<line>
     Defect, failure scenario, and fix direction, in two or three sentences.
 
-Final message: the comment URL and the count per severity, in three lines.
+Return the complete report directly to the orchestrator, with the audit URL or posting error. Include every finding and its evidence, not only counts or a URL. Do this even if the audit post fails.

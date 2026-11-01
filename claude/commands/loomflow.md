@@ -13,8 +13,8 @@ First run "Requirement (build mode, step 0)" in `$HOME/ai/docs/loomflow.md`. The
 
 - Small: delegate the build to GPT 6.1 Terra at `low`; then run review mode on the PR. Normal and Major only for path or area: delegate the build to the Normal builder; it runs the repository check, pushes, and opens the PR. Then run review mode on it.
 - Major build (a new feature or redesign, or more than 300 changed code lines): do no file reads or edits yourself. Start `pr-builder` with the builder model and effort. Pass the `## Requirement` block, worktree path, branch, base branch, and phase `design`. Continue the same builder (SendMessage) for phases `revise` and `build`.
-  1. Start `pr-adversarial-reviewer` in mode `design` with the design reviewer model, the PR number, worktree path, and round number. Confirm a PR review that starts with `## Design review, round <n>`. If it is missing, stop and report.
-  2. If it lists a `blocker` or `major`, continue the builder with phase `revise`. Apply the design round 2 rule in the spec.
+  1. Start `pr-adversarial-reviewer` in mode `design` with the design reviewer model, the PR number, worktree path, round number, and head SHA. In design round 2, also pass the original design report and the builder's revision result. Collect its direct report under "Agent communication" in the shared specification. A missing or mismatched report stops the run.
+  2. If it lists a `blocker` or `major`, pass the complete design report to the builder with phase `revise`. Apply the design round 2 rule in the spec.
   3. Continue the builder with phase `build`. Confirm that the PR is ready and that its head equals the builder's pushed SHA. Then run review mode on it with the Major size.
 - Major series: cancel the automatic CI runs of each series PR (`gh run cancel`), and write the trail file after each merge. For a major redesign series, stop after the last series PR merges and wait for the user ("Build mode" in `$HOME/ai/docs/loomflow.md`).
 
@@ -23,6 +23,7 @@ First run "Requirement (build mode, step 0)" in `$HOME/ai/docs/loomflow.md`. The
 1. `gh pr view <PR> --json number,state,baseRefName,headRefName,headRefOid,url`. Stop if the PR is closed or merged.
 2. Use the worktree that holds the PR branch (`git worktree list`), never the primary checkout. Run `git fetch origin`. HEAD must equal `headRefOid` and `git status --porcelain` must be empty. Otherwise stop and report.
 3. Start roles with the Agent tool, or a delegation tool for another model family, and the `subagent_type` below. Select models and effort as described below; the models in the role files are only fallbacks. Read-only roles (reviewers, test merger) must leave HEAD and the worktree unchanged. If they did not, stop and report.
+4. Follow "Agent communication" in the shared specification. Use direct reports for decisions and task inputs for the next role. Keep PR comments as audit copies; do not fetch them to transfer internal findings. Include user-raised issues in the handoff and check them before the gate.
 
 ## Model and reasoning selection
 
@@ -41,14 +42,14 @@ State the tier and the reason in one line before continuing.
 
 ## Scan tier
 
-Start one `pr-quick-reviewer` (mode `scan`, round 1). If it reports no `blocker` or `major`, go to the merge gate with tier `scan`. Otherwise run round 1 of the full tier from step 1 (both reviewers on the whole diff, the scan review's findings stay open and gate the analyzer in step 3), then continue with its step 2.
+Start one `pr-quick-reviewer` (mode `scan`, round 1, expected head SHA). Validate its direct report. If it reports no `blocker` or `major`, go to the merge gate with tier `scan`. Otherwise run round 1 of the full tier from step 1 (both reviewers on the whole diff, retain the scan report's findings for the analyzer), then continue with its step 2.
 
 ## Full tier: rounds (at most two)
 
-1. Start in parallel, in one message: `pr-adversarial-reviewer` as Reviewer A and `pr-quick-reviewer` as Reviewer B, both mode `full`, with the models and effort for the change size. Pass the PR number, worktree path, round number, and head SHA. In round 2, also pass the round-1 head SHA. Round 2 reviews only the round-1 fixes and `git diff <round-1 head>..<head>`.
-2. Confirm both reviews reached GitHub (bodies starting with `## Review, round <n>, head <SHA>` and `## Quick review, round <n>, head <SHA>`). If either is missing, stop and report.
+1. Start in parallel, in one message: `pr-adversarial-reviewer` as Reviewer A and `pr-quick-reviewer` as Reviewer B, both mode `full`, with the models and effort for the change size. Pass the PR number, worktree path, round number, and head SHA. In round 2, also pass the round-1 head SHA and complete analyzer result. Round 2 reviews only the round-1 fixes and `git diff <round-1 head>..<head>`.
+2. Validate both direct reports under "Agent communication" in the shared specification. Both must identify the expected PR, mode, round, and same head SHA. Missing, incomplete, or mismatched reports stop the run. Audit comment status does not replace either report.
 3. If none of the round's reviews (including the scan review, after a scan escalation) lists a `blocker` or `major` finding, apply "Reuse passing checks" in `$HOME/ai/docs/loomflow.md` before waiting for CI. For checks still needed, use the runner's PR watch tool when available; otherwise use `timeout 540 gh pr checks <PR> --watch --fail-fast --interval 60` (Bash `timeout` 600000) for at most 45 minutes. If no check shows `fail`, go to the merge gate and skip the analyzer.
-4. Otherwise start `pr-comment-analyzer` with the analyzer model and effort for the change size. Pass the PR number, worktree path, and round number. It fixes or rebuts each finding from both reviews and each failed CI check, and pushes.
+4. Otherwise start `pr-comment-analyzer` with the analyzer model and effort for the change size. Pass the PR number, worktree path, round number, expected head SHA, and complete deduplicated findings, including scan findings and user-raised issues. It fixes or rebuts each finding and each failed CI check, pushes, and returns every outcome directly. Validate its input and output SHAs and account for every finding ID before proceeding.
 5. If the head SHA changed and this was round 1, start round 2. Otherwise go to the merge gate.
 
 For a model of another family, use an available delegation tool with the prompt "Read `$HOME/ai/claude/agents/<role>.md` and follow it." plus the inputs. If none is available, use a configured vendor CLI with the same role instructions, inputs, and comment format. No such runner is configured by default.
