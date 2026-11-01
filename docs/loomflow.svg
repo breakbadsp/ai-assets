@@ -1,0 +1,222 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1870" role="img" aria-labelledby="title desc">
+<title id="title">LoomFlow — current build and review workflow</title>
+<desc id="desc">Build mode starts with requirement refinement. An existing PR enters at setup. Major feature builds include design review. Scan findings escalate to full review. Full review has at most two rounds, followed by one merge gate. Every exit records a retrospective.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/></marker></defs>
+<style>
+text { font-family:Inter,Arial,sans-serif; fill:var(--foreground,#172033) }
+.heading { font-size:32px;font-weight:750;letter-spacing:-1px }
+.caption { font-size:16px;fill:var(--muted-foreground,#58667b) }
+.label { font-size:14px;fill:var(--muted-foreground,#58667b);font-weight:600 }
+.card { fill:var(--card,#f5f7fb);stroke:color-mix(in srgb,var(--foreground,#172033) 24%,transparent);stroke-width:1.5 }
+.name { font-size:20px;font-weight:700 }
+.detail { font-size:15px;fill:var(--muted-foreground,#58667b) }
+.tag { font-size:12px;font-weight:750;letter-spacing:1px;fill:var(--info,#2563eb) }
+.edge { fill:none;stroke:var(--muted-foreground,#718096);stroke-width:2;marker-end:url(#arrow) }
+.optional { stroke-dasharray:5 6 }
+.fix { stroke:var(--warning,#bc7700) }
+.stop { stroke:var(--destructive,#cf4051) }
+.pulse { fill:none;stroke:var(--primary,#3971ed);stroke-width:2.5;opacity:0;animation:light 20s linear infinite }
+.dot { fill:var(--primary,#3971ed);opacity:.85 }
+@keyframes light { 0%,7%,100% {opacity:0} 1%,5% {opacity:1} }
+@media(prefers-reduced-motion:reduce) { .pulse {animation:none} .dot {display:none} }
+</style>
+<text x="25" y="43" class="heading">LoomFlow</text>
+<text x="25" y="73" class="caption">Current workflow · build a task or review an existing PR</text>
+<circle cx="32" cy="102" r="5" class="dot"/><text x="47" y="107" class="label">Animated flow</text>
+<path d="M 225 102 H 265" class="edge optional"/><text x="278" y="107" class="label">Conditional path</text>
+<path d="M 460 102 H 500" class="edge fix"/><text x="513" y="107" class="label">Fix / review again</text>
+<text x="1055" y="43" text-anchor="end" class="label">AUTOPILOT BY DEFAULT</text>
+
+<path d="M 540 221 V 245" class="edge "/>
+<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 540 221 V 245"/></circle>
+<path d="M 540 331 V 355" class="edge "/>
+<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 540 331 V 355"/></circle>
+<path d="M 540 441 V 465" class="edge "/>
+<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 540 441 V 465"/></circle>
+<path d="M 540 551 V 575" class="edge "/>
+<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 540 551 V 575"/></circle>
+<path d="M 540 661 V 685" class="edge "/>
+<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 540 661 V 685"/></circle>
+<path d="M 540 771 V 795" class="edge "/>
+<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 540 771 V 795"/></circle>
+<path d="M 540 881 V 905" class="edge "/>
+<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 540 881 V 905"/></circle>
+<path d="M 330 178 H 150 V 685" class="edge optional"/>
+<text x="53" y="475" class="label">PR input</text>
+<path d="M 275 728 H 300 V 838 H 330" class="edge "/>
+<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 275 728 H 300 V 838 H 330"/></circle>
+<path d="M 750 508 H 805" class="edge optional"/>
+<path d="M 930 551 V 610 H 750" class="edge optional"/>
+<path d="M 330 398 H 305 V 618 H 330" class="edge optional"/>
+<path d="M 430 991 V 1003 H 300 V 1015" class="edge "/>
+<text x="438" y="1001" class="label">scan</text>
+<path d="M 650 991 V 1003 H 780 V 1015" class="edge "/>
+<text x="612" y="1001" class="label">full</text>
+<path d="M 300 1101 V 1168 H 330" class="edge "/>
+<path d="M 780 1101 V 1168 H 750" class="edge "/>
+<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 780 1101 V 1168 H 750"/></circle>
+<path d="M 490 1044 H 590" class="edge fix"/>
+<text x="497" y="1034" class="label">escalate</text>
+<path d="M 540 1211 V 1345" class="edge "/>
+<text x="553" y="1287" class="label">No open findings</text>
+<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 540 1211 V 1345"/></circle>
+<path d="M 750 1168 H 930 V 1235" class="edge fix"/>
+<text x="828" y="1205" class="label">Findings</text>
+<path d="M 930 1321 V 1345" class="edge fix"/>
+<path d="M 805 1278 H 770 V 1310 H 700 V 1345" class="edge optional"/>
+<path d="M 805 1370 H 750" class="edge optional"/>
+<path d="M 1055 1388 H 1070 V 1608 H 1055" class="edge stop"/>
+<text x="950" y="1500" class="label">Open after R2</text>
+<path d="M 750 1498 H 790 V 1608 H 805" class="edge stop"/>
+<text x="798" y="1545" class="label">Gate failed</text>
+<path d="M 750 1400 H 790 V 1587 H 805" class="edge stop"/>
+<text x="798" y="1470" class="label">Check failed</text>
+<path d="M 540 1431 V 1455" class="edge "/>
+<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 540 1431 V 1455"/></circle>
+<path d="M 540 1541 V 1565" class="edge "/>
+<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 540 1541 V 1565"/></circle>
+<path d="M 540 1651 V 1675" class="edge "/>
+<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="M 540 1651 V 1675"/></circle>
+<path d="M 930 1651 V 1718 H 750" class="edge optional"/>
+<g id="start"><rect x="330" y="135" width="420" height="86" rx="12" class="card "/>
+<rect x="330" y="135" width="420" height="86" rx="12" class="pulse" style="animation-delay:0s"/>
+<text x="346" y="154" class="tag">ENTRY</text>
+<text x="346" y="178" class="name">Start LoomFlow</text>
+<text x="346" y="197" class="detail">User supplies a task or an existing PR.</text>
+</g>
+<g id="requirement"><rect x="330" y="245" width="420" height="86" rx="12" class="card "/>
+<rect x="330" y="245" width="420" height="86" rx="12" class="pulse" style="animation-delay:1s"/>
+<text x="346" y="264" class="tag">01 · BUILD MODE</text>
+<text x="346" y="288" class="name">Refine the requirement</text>
+<text x="346" y="307" class="detail">Five Cs · resolve gaps with the user.</text>
+<text x="346" y="324" class="detail">Record acceptance criteria and assumptions.</text>
+</g>
+<g id="size"><rect x="330" y="355" width="420" height="86" rx="12" class="card "/>
+<rect x="330" y="355" width="420" height="86" rx="12" class="pulse" style="animation-delay:2s"/>
+<text x="346" y="374" class="tag">02 · ORCHESTRATOR</text>
+<text x="346" y="398" class="name">Size the change</text>
+<text x="346" y="417" class="detail">Small / Normal / Major</text>
+<text x="346" y="434" class="detail">Select the builder, reviewers, and effort.</text>
+</g>
+<g id="design"><rect x="330" y="465" width="420" height="86" rx="12" class="card "/>
+<rect x="330" y="465" width="420" height="86" rx="12" class="pulse" style="animation-delay:3s"/>
+<text x="346" y="484" class="tag" style="font-size:10px">03 · MAJOR FEATURE / REDESIGN / &gt;300 CODE LINES</text>
+<text x="346" y="508" class="name">Draft the design</text>
+<text x="346" y="527" class="detail">Builder opens a draft PR with the design.</text>
+<text x="346" y="544" class="detail">Other builds go directly to Build + prove.</text>
+</g>
+<g id="design-review"><rect x="805" y="465" width="250" height="86" rx="12" class="card optional"/>
+<rect x="805" y="465" width="250" height="86" rx="12" class="pulse" style="animation-delay:3s"/>
+<text x="821" y="484" class="tag">DESIGN REVIEW</text>
+<text x="821" y="508" class="name">Review the design</text>
+<text x="821" y="527" class="detail">Revise once if needed.</text>
+<text x="821" y="544" class="detail">Round 2 only for blockers.</text>
+</g>
+<g id="build"><rect x="330" y="575" width="420" height="86" rx="12" class="card "/>
+<rect x="330" y="575" width="420" height="86" rx="12" class="pulse" style="animation-delay:4s"/>
+<text x="346" y="594" class="tag">04 · BUILDER</text>
+<text x="346" y="618" class="name">Build + prove</text>
+<text x="346" y="637" class="detail">Implement the acceptance criteria.</text>
+<text x="346" y="654" class="detail">Run checks and record the safety proof.</text>
+</g>
+<g id="pr"><rect x="330" y="685" width="420" height="86" rx="12" class="card "/>
+<rect x="330" y="685" width="420" height="86" rx="12" class="pulse" style="animation-delay:5s"/>
+<text x="346" y="704" class="tag">05 · BUILDER</text>
+<text x="346" y="728" class="name">Open / ready the PR</text>
+<text x="346" y="747" class="detail">Keep the Requirement block in the body.</text>
+<text x="346" y="764" class="detail">Push the code and confirm the head SHA.</text>
+</g>
+<g id="existing"><rect x="25" y="685" width="250" height="86" rx="12" class="card "/>
+<rect x="25" y="685" width="250" height="86" rx="12" class="pulse" style="animation-delay:0s"/>
+<text x="41" y="704" class="tag">REVIEW MODE ENTRY</text>
+<text x="41" y="728" class="name">Existing PR</text>
+<text x="41" y="747" class="detail">Skip requirement and build.</text>
+<text x="41" y="764" class="detail">Use the supplied PR.</text>
+</g>
+<g id="setup"><rect x="330" y="795" width="420" height="86" rx="12" class="card "/>
+<rect x="330" y="795" width="420" height="86" rx="12" class="pulse" style="animation-delay:6s"/>
+<text x="346" y="814" class="tag">06 · ORCHESTRATOR</text>
+<text x="346" y="838" class="name">Verify PR setup</text>
+<text x="346" y="857" class="detail">Open PR · correct head SHA</text>
+<text x="346" y="874" class="detail">Clean PR worktree · fetch the base.</text>
+</g>
+<g id="triage"><rect x="330" y="905" width="420" height="86" rx="12" class="card "/>
+<rect x="330" y="905" width="420" height="86" rx="12" class="pulse" style="animation-delay:7s"/>
+<text x="346" y="924" class="tag">07 · ORCHESTRATOR</text>
+<text x="346" y="948" class="name">Select the review tier</text>
+<text x="346" y="967" class="detail">Scan only for eligible low-risk changes.</text>
+<text x="346" y="984" class="detail">Sensitive paths or doubt require full.</text>
+</g>
+<g id="scan"><rect x="110" y="1015" width="380" height="86" rx="12" class="card "/>
+<rect x="110" y="1015" width="380" height="86" rx="12" class="pulse" style="animation-delay:8s"/>
+<text x="126" y="1034" class="tag">08A · SCAN</text>
+<text x="126" y="1058" class="name">One quick reviewer</text>
+<text x="126" y="1077" class="detail">No findings → checks. Findings → full R1.</text>
+</g>
+<g id="full"><rect x="590" y="1015" width="380" height="86" rx="12" class="card "/>
+<rect x="590" y="1015" width="380" height="86" rx="12" class="pulse" style="animation-delay:8s"/>
+<text x="606" y="1034" class="tag">08B · FULL</text>
+<text x="606" y="1058" class="name">Two reviewers in parallel</text>
+<text x="606" y="1077" class="detail">Reviewer A + B review the same head SHA.</text>
+</g>
+<g id="findings"><rect x="330" y="1125" width="420" height="86" rx="12" class="card "/>
+<rect x="330" y="1125" width="420" height="86" rx="12" class="pulse" style="animation-delay:9s"/>
+<text x="346" y="1144" class="tag">09 · ORCHESTRATOR</text>
+<text x="346" y="1168" class="name">Assess review findings</text>
+<text x="346" y="1187" class="detail">Only blocker and major findings.</text>
+<text x="346" y="1204" class="detail">Required reviews must be posted.</text>
+</g>
+<g id="analyze"><rect x="805" y="1235" width="250" height="86" rx="12" class="card fix"/>
+<rect x="805" y="1235" width="250" height="86" rx="12" class="pulse" style="animation-delay:10s"/>
+<text x="821" y="1254" class="tag">10 · IF FINDINGS</text>
+<text x="821" y="1278" class="name">Analyze + fix / rebut</text>
+<text x="821" y="1297" class="detail">One analyzer handles findings</text>
+<text x="821" y="1314" class="detail">and each failed CI check.</text>
+</g>
+<g id="round2"><rect x="805" y="1345" width="250" height="86" rx="12" class="card fix"/>
+<rect x="805" y="1345" width="250" height="86" rx="12" class="pulse" style="animation-delay:11s"/>
+<text x="821" y="1364" class="tag">11 · IF ROUND 1 CHANGES HEAD</text>
+<text x="821" y="1388" class="name">Review round 2</text>
+<text x="821" y="1407" class="detail">Review fixes and new commits.</text>
+<text x="821" y="1424" class="detail">Check their callers. No R3.</text>
+</g>
+<g id="checks"><rect x="330" y="1345" width="420" height="86" rx="12" class="card "/>
+<rect x="330" y="1345" width="420" height="86" rx="12" class="pulse" style="animation-delay:12s"/>
+<text x="346" y="1364" class="tag">12 · NO OPEN FINDINGS</text>
+<text x="346" y="1388" class="name">Reuse checks + verify CI</text>
+<text x="346" y="1407" class="detail">Reuse passing checks for combined inputs.</text>
+<text x="346" y="1424" class="detail">Stop at the first failed check.</text>
+</g>
+<g id="gate"><rect x="330" y="1455" width="420" height="86" rx="12" class="card "/>
+<rect x="330" y="1455" width="420" height="86" rx="12" class="pulse" style="animation-delay:13s"/>
+<text x="346" y="1474" class="tag">13 · TEST AND MERGE · ONCE</text>
+<text x="346" y="1498" class="name">Run the merge gate</text>
+<text x="346" y="1517" class="detail">Expected SHA · clean worktree · coverage</text>
+<text x="346" y="1534" class="detail">Mergeable + clean · respect branch checks.</text>
+</g>
+<g id="merge"><rect x="330" y="1565" width="420" height="86" rx="12" class="card "/>
+<rect x="330" y="1565" width="420" height="86" rx="12" class="pulse" style="animation-delay:14s"/>
+<text x="346" y="1584" class="tag">14 · PASS</text>
+<text x="346" y="1608" class="name">Merge the reviewed head</text>
+<text x="346" y="1627" class="detail">Use --match-head-commit.</text>
+<text x="346" y="1644" class="detail">No --admin, force, or gate retry.</text>
+</g>
+<g id="stop"><rect x="805" y="1565" width="250" height="86" rx="12" class="card stop"/>
+<rect x="805" y="1565" width="250" height="86" rx="12" class="pulse" style="animation-delay:14s"/>
+<text x="821" y="1584" class="tag">STOP · MANUAL HANDLING</text>
+<text x="821" y="1608" class="name">Report and stop</text>
+<text x="821" y="1627" class="detail">Open issues after round 2,</text>
+<text x="821" y="1644" class="detail">failed gate, or failed checks.</text>
+</g>
+<g id="retro"><rect x="330" y="1675" width="420" height="86" rx="12" class="card "/>
+<rect x="330" y="1675" width="420" height="86" rx="12" class="pulse" style="animation-delay:15s"/>
+<text x="346" y="1694" class="tag">15 · EVERY EXIT</text>
+<text x="346" y="1718" class="name">Record the retrospective</text>
+<text x="346" y="1737" class="detail">Append outcome, models, and one lesson.</text>
+<text x="346" y="1754" class="detail">This also applies to stops and failures.</text>
+</g>
+<text x="938" y="585" class="label" style="font-size:12px">Blocker after R2 → stop</text>
+<text x="25" y="1801" class="caption">Supervised mode: approve the requirement, plan or design, and start of the gate.</text>
+<text x="25" y="1826" class="caption">Major redesign series: user tests the feature branch before the final sync PR.</text>
+<text x="25" y="1851" class="label">Source: docs/loomflow.md (canonical) · generated by scripts/generate-loomflow-diagram.py</text>
+</svg>
