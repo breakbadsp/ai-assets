@@ -26,7 +26,7 @@
 
 - Decide the size after the requirement step, before any other work, from the planned change and the "When" column below. Review mode uses this size when it is larger than its own triage.
 - For a bug, the builder attempts to reproduce the reported behavior and investigates its root cause using the available evidence before design or implementation. Read `principle-fix-root-causes`. Record the steps, results, evidence, and cause in the PR body, and pass them to the design reviewer when applicable. If reproduction or the cause remains unconfirmed, record what was tried, the limits, and the uncertainty; do not present a hypothesis as a confirmed cause. Continue with the available evidence, and update the requirement if the findings change it.
-- Small: delegate the build to GPT 6.1 Terra at `low`; it builds and opens a PR to the repository base branch. Normal: delegate the build to Sonnet 5.5 at `medium`; the builder opens a PR with a plan of 3 to 5 lines in the PR body. A Major change that is Major only for its path or area is built as Normal, and keeps the Major review.
+- Small: delegate the build to the Small builder; it builds and opens a PR to the repository base branch. Normal: delegate the build to the Normal builder; it opens a PR with a plan of 3 to 5 lines in the PR body. A Major change that is Major only for its path or area is built as Normal, and keeps the Major review.
 - Major build (a new feature or redesign, or more than 300 changed code lines): the orchestrator stays thin. It sizes, decides, delegates, and checks results. A fresh builder does all exploration, file reads, edits, and proof.
   1. The builder opens a draft PR. Its body is the `## Requirement` block, the bug investigation when applicable, and the minimal design note: x over y and why; what is deleted; the one fact that makes the change safe. Decide only what blocks the first verifiable unit.
   2. One reviewer uses the design reviewer model and effort below. Over-design is a finding. The builder revises once. Run design round 2 only when a design `blocker` is not `FIXED`. Never run a third. An open design `blocker` after round 2 stops the run.
@@ -63,20 +63,16 @@ Pick the models from the size of the change. Pass the model and effort to every 
 
 | Size | When | Builder | Reviewer A | Reviewer B | Analyzer | Gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| Small | `scan` | GPT 6.1 Terra, low | GPT 6.1 Terra, medium | none | GPT 6.1 Terra, medium | GPT 6.1 Terra, low |
-| Normal | other `full` changes | Sonnet 5.5, medium (GPT 6.1 Sol, medium) | GPT 6.1 Sol or Sonnet 5.5, medium | GPT 6.1 Terra, medium | Sonnet 5.5, medium | GPT 6.1 Terra, low |
-| Major | a new feature or redesign; any change on a sensitive path; concurrency, storage, wire format, auth, or secrets; or more than 300 changed code lines | Opus 5.5, medium; Normal builder when Major only for path or area | GPT 6.1 Sol, high (Opus 5.5, medium, when Sol is unavailable) | Sonnet 5.5, high | Sonnet 5.5, high | GPT 6.1 Terra, low |
+| Small | `scan` | Sonnet 5.5, high | Sonnet 5.5, high | none | Sonnet 5.5, high | Sonnet 5.5, high |
+| Normal | other `full` changes | Sonnet 5.5, high | Opus 5.5, medium | Sonnet 5.5, high | Sonnet 5.5, high | Sonnet 5.5, high |
+| Major | a new feature or redesign; any change on a sensitive path; concurrency, storage, wire format, auth, or secrets; or more than 300 changed code lines | Opus 5.5, medium; Normal builder when Major only for path or area | Sonnet 5.5, high | Opus 5.5, medium | Sonnet 5.5, high | Sonnet 5.5, high |
 
 - Changed code lines are added plus modified lines. Deleted test lines do not count: removing tests for removed behavior adds no risk, and counting it made cleanups Major.
-- Use two model families for A and B when possible. In any doubt between two sizes, use the larger one.
-- Apply the reasoning limits in `AGENTS.md` to every role and fallback: at most `high`, and always `medium` for Opus. By default, do not use Astra 6.
-- When GPT 6.1 Terra is unavailable, use Claude Haiku at the same effort.
-- When the selected Claude model is unavailable, including due to a usage limit, continue on Codex. Opus 5.5 `medium` becomes GPT 6.1 Sol `high`; Sonnet 5.5 becomes GPT 6.1 Sol at the same effort. Use Astra 6 `medium` only when required for this fallback.
+- Use different models for A and B when possible. In any doubt between two sizes, use the larger one.
+- Apply the model and reasoning limits in `AGENTS.md` to every role and fallback. For coding work, including code reviews and writing tests, use Sonnet 5.5 `high` or Opus 5.5 `medium`. If the selected model is unavailable, use the other. If both are unavailable, stop and report.
 - UI/UX design review uses Astra 6 `medium`, with Opus 5.5 `medium` as fallback. This role does not require a different model family or an increase to `high`. It gives no Astra exception for code review or build.
-- Use GPT 6.1 Terra for mechanical work and simple tasks, including merge gates, data gathering, mechanical edits, and tests from a clear specification.
-- Lower the effort, never the size, when the token budget is low.
-- Major builder: a stronger model when unused budget expires soon, a cheaper one when the budget is low. Use other families where they fit.
-- Non-UI Major design review: use the Major Reviewer A model, of a family other than the builder's when available, at `medium` for Opus or `high` for other models. Apply the model fallback above when needed.
+- For non-coding work, choose the model and reasoning effort to suit the task. Use GPT 6.1 Terra only at `high`.
+- Non-UI Major design review: use the Major Reviewer A model. Use a different model from the builder when possible. Apply the model fallback above when needed.
 
 ## Agent communication
 
