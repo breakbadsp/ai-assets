@@ -25,9 +25,10 @@
 ## Build mode
 
 - Decide the size after the requirement step, before any other work, from the planned change and the "When" column below. Review mode uses this size when it is larger than its own triage.
+- For a bug, the builder attempts to reproduce the reported behavior and investigates its root cause using the available evidence before design or implementation. Read `principle-fix-root-causes`. Record the steps, results, evidence, and cause in the PR body, and pass them to the design reviewer when applicable. If reproduction or the cause remains unconfirmed, record what was tried, the limits, and the uncertainty; do not present a hypothesis as a confirmed cause. Continue with the available evidence, and update the requirement if the findings change it.
 - Small: delegate the build to GPT 6.1 Terra at `low`; it builds and opens a PR to the repository base branch. Normal: delegate the build to Sonnet 5.5 at `medium`; the builder opens a PR with a plan of 3 to 5 lines in the PR body. A Major change that is Major only for its path or area is built as Normal, and keeps the Major review.
 - Major build (a new feature or redesign, or more than 300 changed code lines): the orchestrator stays thin. It sizes, decides, delegates, and checks results. A fresh builder does all exploration, file reads, edits, and proof.
-  1. The builder opens a draft PR. Its body is the `## Requirement` block and the minimal design note: x over y and why; what is deleted; the one fact that makes the change safe. Decide only what blocks the first verifiable unit.
+  1. The builder opens a draft PR. Its body is the `## Requirement` block, the bug investigation when applicable, and the minimal design note: x over y and why; what is deleted; the one fact that makes the change safe. Decide only what blocks the first verifiable unit.
   2. One reviewer uses the design reviewer model and effort below. Over-design is a finding. The builder revises once. Run design round 2 only when a design `blocker` is not `FIXED`. Never run a third. An open design `blocker` after round 2 stops the run.
   3. The builder builds, proves, writes the safety fact and its proof in the PR body, and marks the PR ready.
 - Major series (more than one PR): PRs target a feature branch and gate on the local check. The orchestrator cancels their automatic CI runs. After each merge, it writes the decisions and open items to the trail file, `<state>/<owner>-<repo>-<feature branch, "/" as "-">.md`, and continues from that file. One final sync PR to `master` runs full CI.
@@ -41,6 +42,7 @@
 Read each skill in `$HOME/ai/skills/` (with or without the `principle-` prefix) at the step it governs.
 
 - Requirement: FiveCsReview.
+- Bug investigation: fix-root-causes.
 - Design (Major): redesign-from-first-principles, foundational-thinking, model-the-domain, subtract-before-you-add, blast-radius.
 - Build: sequence-verifiable-units, laziness-protocol, test-behavior-not-implementation, minimize-reader-load, boundary-discipline, migrate-callers-then-delete-legacy-apis, type-system-discipline (C++).
 - When stuck: fix-root-causes; attack-the-premise after two failed fixes with one premise.

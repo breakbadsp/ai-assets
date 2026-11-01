@@ -176,15 +176,15 @@ text { font-family:Inter,Arial,sans-serif; fill:var(--fg) }
 <rect x="172" y="298" width="240" height="90" rx="12" class="pulse" style="animation-delay:4.2s"/>
 <text x="186" y="317" class="tag">SMALL · NORMAL</text>
 <text x="186" y="340" class="name">Delegate the build</text>
-<text x="186" y="360" class="detail">Builder checks and opens the PR.</text>
-<text x="186" y="377" class="detail">Major only by path = Normal.</text>
+<text x="186" y="360" class="detail">Bugs: investigate before build.</text>
+<text x="186" y="377" class="detail">Builder opens the PR.</text>
 </g>
 <g id="draft"><rect x="700" y="298" width="240" height="90" rx="12" class="card "/>
 <rect x="700" y="298" width="240" height="90" rx="12" class="pulse" style="animation-delay:4.2s"/>
 <text x="714" y="317" class="tag">MAJOR · BUILDER</text>
 <text x="714" y="340" class="name">Draft the design note</text>
-<text x="714" y="360" class="detail">Draft PR: x over y, deletions,</text>
-<text x="714" y="377" class="detail">and the one safety fact.</text>
+<text x="714" y="360" class="detail">Bugs: investigate before design.</text>
+<text x="714" y="377" class="detail">State the one safety fact.</text>
 </g>
 <g id="design"><rect x="964" y="298" width="240" height="90" rx="12" class="card cond"/>
 <rect x="964" y="298" width="240" height="90" rx="12" class="pulse" style="animation-delay:5.6s"/>

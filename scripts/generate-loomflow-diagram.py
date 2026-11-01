@@ -115,8 +115,8 @@ card('start', 1, 0, 0, 'ENTRY · BUILD MODE', 'Start LoomFlow', ['/loomflow <tas
 card('requirement', 1, 1, 0, 'REQUIREMENT · FIVE Cs', 'Refine the requirement', ['Ask every gap in one message.', 'Record assumptions + criteria.'], 1)
 card('size', 1, 2, 0, 'SIZING · ORCHESTRATOR', 'Size the change', ['Small, Normal, or Major.', 'Review mode keeps a larger size.'], 2)
 # 2 BUILD
-card('build-sn', 2, 0, 0, 'SMALL · NORMAL', 'Delegate the build', ['Builder checks and opens the PR.', 'Major only by path = Normal.'], 3)
-card('draft', 2, 2, 0, 'MAJOR · BUILDER', 'Draft the design note', ['Draft PR: x over y, deletions,', 'and the one safety fact.'], 3)
+card('build-sn', 2, 0, 0, 'SMALL · NORMAL', 'Delegate the build', ['Bugs: investigate before build.', 'Builder opens the PR.'], 3)
+card('draft', 2, 2, 0, 'MAJOR · BUILDER', 'Draft the design note', ['Bugs: investigate before design.', 'State the one safety fact.'], 3)
 card('design', 2, 3, 0, 'DESIGN REVIEW', 'Review the design', ['Blocker/major → revise once.', 'R2 only if a blocker is open.'], 4, 'cond')
 card('build-major', 2, 3, 1, 'MAJOR · BUILDER', 'Build and prove', ['Safety fact + proof in PR body.', 'Mark the PR ready.'], 5)
 card('series', 2, 1, 1, 'MAJOR SERIES · MORE THAN ONE PR', 'PRs target a feature branch', ['Local check gates; CI runs cancelled; trail file.', 'Redesign series: stop after the last merge; user tests.'], 5, 'cond', span=2)

@@ -13,7 +13,7 @@ The `## Requirement` block from the orchestrator, worktree path, branch, base br
 
 ## Phases
 
-- `design`: read the "Design" skills and "Build mode" in `$HOME/ai/docs/loomflow.md`. Push one empty commit and open a draft PR against the base branch. Its body is the `## Requirement` block, then the minimal design note. Prove the one safety fact (blast-radius) as far as is cheap, and state how far.
+- `design`: read the "Design" skills and "Build mode" in `$HOME/ai/docs/loomflow.md`. For a bug, perform and record the bug investigation before design. Push one empty commit and open a draft PR against the base branch. Its body is the `## Requirement` block, bug investigation when applicable, then the minimal design note. Prove the one safety fact (blast-radius) as far as is cheap, and state how far.
 - `revise`: read the supplied design report, not its audit comment. Revise the PR body once. Give each `blocker` and `major` ID one outcome, `FIXED` or `REBUTTED` with evidence. Stop and report missing or mismatched inputs.
 - `build`: read the "Build", "Prove", and "PR text" skills. Build in verifiable units. Before each commit, run the repository formatter and check command from `AGENTS.md`. Prove each acceptance criterion (for a bug, first a test that fails without the fix). Push, check off the criteria and write the safety fact and its proof in the PR body, and run `gh pr ready`.
 
