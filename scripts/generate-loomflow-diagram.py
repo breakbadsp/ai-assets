@@ -1,126 +1,297 @@
 #!/usr/bin/env python3
 """Generate docs/loomflow.svg. Run: python3 scripts/generate-loomflow-diagram.py
 
-The SVG is a view. docs/loomflow.md is the source of truth."""
+The SVG is a view. docs/loomflow.md is the source of truth.
+Each node appears once. A repeated step (review round 2, the final analyzer)
+is a loop edge to the same node, not a copy."""
 from html import escape
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
 OUT = Path(__file__).resolve().parent.parent / 'docs' / 'loomflow.svg'
-W, H = 1080, 1900
+W = 1424
+CW, CH, PITCH = 240, 90, 120          # card width, card height, row pitch
+COLS = [172, 436, 700, 964]           # card columns
+PAD, GAP = 14, 28                     # band padding, gap between bands
+BAND_X, BAND_W = 12, 1248
+LANE_X, LANE_W = 1280, 130            # stop lane
+
+# (number, name, note, rows, tint class)
+STAGES = [
+    ('1', 'DEFINE', 'build mode', 1),
+    ('2', 'BUILD', 'build mode', 2),
+    ('3', 'PREPARE', 'review mode', 1),
+    ('4', 'REVIEW', 'rounds 1 and 2', 2),
+    ('5', 'FIX', 'analyzer', 1),
+    ('6', 'GATE', 'run once', 2),
+    ('7', 'CLOSE', 'every exit', 1),
+]
+HEADER = 138
+band_y, y = [], HEADER
+for _, _, _, rows in STAGES:
+    h = 2 * PAD + (rows - 1) * PITCH + CH
+    band_y.append((y, h))
+    y += h + GAP
+FOOT = y - GAP + 30
+H = FOOT + 112
+
+def bus(stage):
+    """Y of the gap line below a stage (1-based)."""
+    top, h = band_y[stage - 1]
+    return top + h + GAP // 2
+
 parts = [f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" aria-labelledby="title desc">
-<title id="title">LoomFlow — current build and review workflow</title>
-<desc id="desc">Build mode starts with requirement refinement. An existing PR enters at setup. Major feature builds include design review. Scan findings escalate to full review. Full review has at most two rounds, followed by one merge gate. Every exit records a retrospective.</desc>
+<title id="title">LoomFlow — build and review workflow</title>
+<desc id="desc">Seven stages. Define: refine the requirement and size the change. Build: Small and Normal builds go straight to a PR; Major builds add a design note and design review. Prepare: verify the PR and select the scan or full review. Review: scan, or two full reviewers, then validate the reports and checks. Fix: one analyzer fixes or rebuts findings and failed checks; round 2 reuses the review stage once. Gate: one merge gate. Close: every exit, including a stop, records a retrospective.</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/></marker></defs>
 <style>
-text {{ font-family:Inter,Arial,sans-serif; fill:var(--foreground,#172033) }}
+:root {{ --fg:var(--foreground,#172033); --mute:var(--muted-foreground,#58667b); --card-bg:var(--card,#f5f7fb); --blue:var(--primary,#3971ed); --amber:var(--warning,#bc7700); --red:var(--destructive,#cf4051) }}
+@media(prefers-color-scheme:dark) {{ :root {{ --fg:var(--foreground,#e6edf3); --mute:var(--muted-foreground,#9aa7b8); --card-bg:var(--card,#1a212c); --amber:var(--warning,#e0a030); --red:var(--destructive,#f06a78) }} }}
+text {{ font-family:Inter,Arial,sans-serif; fill:var(--fg) }}
 .heading {{ font-size:32px;font-weight:750;letter-spacing:-1px }}
-.caption {{ font-size:16px;fill:var(--muted-foreground,#58667b) }}
-.label {{ font-size:14px;fill:var(--muted-foreground,#58667b);font-weight:600 }}
-.card {{ fill:var(--card,#f5f7fb);stroke:color-mix(in srgb,var(--foreground,#172033) 24%,transparent);stroke-width:1.5 }}
-.name {{ font-size:20px;font-weight:700 }}
-.detail {{ font-size:15px;fill:var(--muted-foreground,#58667b) }}
-.tag {{ font-size:12px;font-weight:750;letter-spacing:1px;fill:var(--info,#2563eb) }}
-.edge {{ fill:none;stroke:var(--muted-foreground,#718096);stroke-width:2;marker-end:url(#arrow) }}
-.optional {{ stroke-dasharray:5 6 }}
-.fix {{ stroke:var(--warning,#bc7700) }}
-.stop {{ stroke:var(--destructive,#cf4051) }}
-.pulse {{ fill:none;stroke:var(--primary,#3971ed);stroke-width:2.5;opacity:0;animation:light 20s linear infinite }}
-.dot {{ fill:var(--primary,#3971ed);opacity:.85 }}
-@keyframes light {{ 0%,7%,100% {{opacity:0}} 1%,5% {{opacity:1}} }}
+.caption {{ font-size:15px;fill:var(--mute) }}
+.label {{ font-size:13px;fill:var(--mute);font-weight:600 }}
+.elabel {{ font-size:11px;fill:var(--mute);font-weight:600 }}
+.elabel.fix {{ fill:var(--amber) }}
+.elabel.stop {{ fill:var(--red) }}
+.band {{ stroke-width:1 }}
+.b1,.b2 {{ fill:#2563eb12;stroke:#2563eb40 }}
+.b3,.b4,.b5 {{ fill:#7c3aed10;stroke:#7c3aed38 }}
+.b6,.b7 {{ fill:#0f9d7a12;stroke:#0f9d7a40 }}
+.snum {{ fill:var(--fg);opacity:.9 }}
+.snumtext {{ font-size:15px;font-weight:800;fill:var(--card-bg);text-anchor:middle }}
+.sname {{ font-size:17px;font-weight:800;letter-spacing:.5px }}
+.snote {{ font-size:12px;fill:var(--mute);font-weight:600 }}
+.card {{ fill:var(--card-bg);stroke:color-mix(in srgb,var(--fg) 26%,transparent);stroke-width:1.5 }}
+.card.cond {{ stroke-dasharray:6 5 }}
+.card.fix {{ stroke:var(--amber) }}
+.lane {{ fill:color-mix(in srgb,var(--red) 8%,transparent);stroke:var(--red);stroke-width:1.5 }}
+.name {{ font-size:17px;font-weight:700 }}
+.detail {{ font-size:13px;fill:var(--mute) }}
+.tag {{ font-size:11px;font-weight:750;letter-spacing:.8px;fill:var(--blue) }}
+.lanetag {{ font-size:11px;font-weight:750;letter-spacing:.8px;fill:var(--red) }}
+.edge {{ fill:none;stroke:var(--mute);stroke-width:2;marker-end:url(#arrow) }}
+.cond {{ stroke-dasharray:5 6 }}
+.edge.fix {{ stroke:var(--amber) }}
+.edge.stop {{ stroke:var(--red) }}
+.pulse {{ fill:none;stroke:var(--blue);stroke-width:2.5;opacity:0;animation:light 24s linear infinite }}
+.dot {{ fill:var(--blue);opacity:.85 }}
+@keyframes light {{ 0%,6%,100% {{opacity:0}} 1%,4% {{opacity:1}} }}
 @media(prefers-reduced-motion:reduce) {{ .pulse {{animation:none}} .dot {{display:none}} }}
 </style>
 <text x="25" y="43" class="heading">LoomFlow</text>
-<text x="25" y="73" class="caption">Current workflow · build a task or review an existing PR</text>
+<text x="25" y="73" class="caption">Build a task or review a PR · refine, size, build, review, one fixer, one gate</text>
 <circle cx="32" cy="102" r="5" class="dot"/><text x="47" y="107" class="label">Animated flow</text>
-<path d="M 225 102 H 265" class="edge optional"/><text x="278" y="107" class="label">Conditional path</text>
-<path d="M 460 102 H 500" class="edge fix"/><text x="513" y="107" class="label">Fix / review again</text>
-<text x="1055" y="43" text-anchor="end" class="label">AUTOPILOT BY DEFAULT</text>
+<path d="M 190 102 H 230" class="edge cond"/><text x="240" y="107" class="label">Conditional path</text>
+<path d="M 400 102 H 440" class="edge fix"/><text x="450" y="107" class="label">Fix / round 2</text>
+<path d="M 590 102 H 630" class="edge stop"/><text x="640" y="107" class="label">Stop</text>
+<text x="1400" y="43" text-anchor="end" class="label">AUTOPILOT BY DEFAULT</text>
 ''']
 
-def edge(path, kind='', label=None, xy=None, animate=False):
-    parts.append(f'<path d="{path}" class="edge {kind}"/>')
-    if label:
-        parts.append(f'<text x="{xy[0]}" y="{xy[1]}" class="label">{escape(label)}</text>')
-    if animate:
-        parts.append(f'<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="{path}"/></circle>')
-
+# ---- cards -----------------------------------------------------------
+cards = {}   # key -> (x, y, w, h)
 nodes = []
-def box(key, x, y, width, tag, name, lines, delay=0, tone=''):
-    nodes.append((key,x,y,width,tag,name,lines,delay,tone))
 
-box('start',330,135,420,'ENTRY','Start LoomFlow',['User supplies a task or an existing PR.'],0)
-box('requirement',330,245,420,'01 · BUILD MODE','Refine the requirement',['Five Cs · resolve gaps with the user.','Record acceptance criteria and assumptions.'],1)
-box('size',330,355,420,'02 · ORCHESTRATOR','Size the change',['Small / Normal / Major','Select the builder, reviewers, and effort.'],2)
-box('design',330,465,420,'03 · MAJOR FEATURE / REDESIGN / >300 CODE LINES','Draft the design',['Builder opens a draft PR with the design.','Other builds go directly to Build + prove.'],3)
-box('design-review',805,465,250,'DESIGN REVIEW','Review the design',['Revise once if needed.','Round 2 only for blockers.'],3,'optional')
-box('build',330,575,420,'04 · BUILDER','Build + prove',['Implement the acceptance criteria.','Run checks and record the safety proof.'],4)
-box('pr',330,685,420,'05 · BUILDER','Open / ready the PR',['Keep the Requirement block in the body.','Push the code and confirm the head SHA.'],5)
-box('existing',25,685,250,'REVIEW MODE ENTRY','Existing PR',['Skip requirement and build.','Use the supplied PR.'],0)
-box('setup',330,795,420,'06 · ORCHESTRATOR','Verify PR setup',['Open PR · correct head SHA','Clean PR worktree · fetch the base.'],6)
-box('triage',330,905,420,'07 · ORCHESTRATOR','Select the review tier',['Scan only for eligible low-risk changes.','Sensitive paths or doubt require full.'],7)
-box('scan',110,1015,380,'08A · SCAN','One quick reviewer',['No findings → checks. Findings → full R1.'],8)
-box('full',590,1015,380,'08B · FULL','Two reviewers in parallel',['Reviewer A + B review the same head SHA.'],8)
-box('findings',330,1125,420,'09 · ORCHESTRATOR','Assess direct reports',['Match PR, round, mode, and head SHA.','Pass complete findings to the analyzer.'],9)
-box('analyze',805,1235,250,'10 · IF FINDINGS','Analyze + fix / rebut',['One analyzer handles findings','and each failed CI check.'],10,'fix')
-box('round2',805,1345,250,'11 · IF ROUND 1 CHANGES HEAD','Review round 2',['Review fixes and new commits.','Check their callers. No R3.'],11,'fix')
-box('analyze2',805,1455,250,'FINAL ANALYZER · IF FINDINGS','Analyze round 2',['Fix or rebut; no third review.','Clear → checks; open → stop.'],12,'fix')
-box('checks',330,1345,420,'12 · NO OPEN FINDINGS','Reuse checks + verify CI',['Reuse passing checks for combined inputs.','Stop at the first failed check.'],12)
-box('gate',330,1455,420,'13 · TEST AND MERGE · ONCE','Run the merge gate',['Expected SHA · clean worktree · coverage','Mergeable + clean · respect branch checks.'],13)
-box('merge',330,1565,420,'14 · PASS','Merge the reviewed head',['Use --match-head-commit.','No --admin, force, or gate retry.'],14)
-box('stop',805,1565,250,'STOP · MANUAL HANDLING','Report and stop',['Open issues after round 2,','failed gate, or failed checks.'],14,'stop')
-box('retro',330,1675,420,'15 · EVERY EXIT','Record the retrospective',['Append outcome, models, and one lesson.','This also applies to stops and failures.'],15)
+def card(key, stage, col, row, tag, name, lines, delay, tone='', span=1):
+    top, _ = band_y[stage - 1]
+    x = COLS[col]
+    w = CW * span + 24 * (span - 1)
+    cards[key] = (x, top + PAD + row * PITCH, w, CH)
+    nodes.append((key, tag, name, lines, delay, tone))
 
-# Draw routes first so that connectors stay behind the cards.
-for y in [135,245,355,465,575,685,795]:
-    edge(f'M 540 {y+86} V {y+110}',animate=True)
-edge('M 330 178 H 150 V 685','optional', 'PR input', (53,475))
-edge('M 275 728 H 300 V 838 H 330',animate=True)
-edge('M 750 508 H 805','optional')
-edge('M 930 551 V 610 H 750','optional')
-edge('M 330 398 H 305 V 618 H 330','optional')
-edge('M 430 991 V 1003 H 300 V 1015',label='scan',xy=(438,1001))
-edge('M 650 991 V 1003 H 780 V 1015',label='full',xy=(612,1001))
-edge('M 300 1101 V 1168 H 330')
-edge('M 780 1101 V 1168 H 750',animate=True)
-edge('M 490 1044 H 590','fix', 'escalate',(497,1034))
-edge('M 540 1211 V 1345',label='No open findings',xy=(553,1287),animate=True)
-edge('M 750 1168 H 930 V 1235','fix', 'Findings',(828,1205))
-edge('M 930 1321 V 1345','fix')
-edge('M 805 1278 H 770 V 1310 H 700 V 1345','optional')
-edge('M 805 1370 H 750','optional')
-edge('M 930 1431 V 1455','fix')
-edge('M 805 1478 H 775 V 1418 H 750','optional')
-edge('M 930 1541 V 1565','stop','Open after fix',(943,1558))
-edge('M 750 1498 H 790 V 1608 H 805','stop','Gate failed',(650,1555))
-edge('M 750 1400 H 790 V 1587 H 805','stop','Check failed',(650,1445))
-edge('M 540 1431 V 1455',animate=True)
-edge('M 540 1541 V 1565',animate=True)
-edge('M 540 1651 V 1675',animate=True)
-edge('M 930 1651 V 1718 H 750','optional')
+def T(key, dx=0):
+    x, y, w, h = cards[key]; return (x + w / 2 + dx, y)
+def B(key, dx=0):
+    x, y, w, h = cards[key]; return (x + w / 2 + dx, y + h)
+def L(key, dy=0):
+    x, y, w, h = cards[key]; return (x, y + h / 2 + dy)
+def R(key, dy=0):
+    x, y, w, h = cards[key]; return (x + w, y + h / 2 + dy)
 
-for key,x,y,width,tag,name,lines,delay,tone in nodes:
-    parts.append(f'<g id="{key}"><rect x="{x}" y="{y}" width="{width}" height="86" rx="12" class="card {tone}"/>')
-    parts.append(f'<rect x="{x}" y="{y}" width="{width}" height="86" rx="12" class="pulse" style="animation-delay:{delay}s"/>')
-    # Long phase tags use a smaller font to keep every label inside its box.
-    tag_size = ' style="font-size:10px"' if len(tag)>35 else ''
-    parts.append(f'<text x="{x+16}" y="{y+19}" class="tag"{tag_size}>{escape(tag)}</text>')
-    parts.append(f'<text x="{x+16}" y="{y+43}" class="name">{escape(name)}</text>')
-    for i,line in enumerate(lines):
-        parts.append(f'<text x="{x+16}" y="{y+62+i*17}" class="detail">{escape(line)}</text>')
+# 1 DEFINE
+card('start', 1, 0, 0, 'ENTRY · BUILD MODE', 'Start LoomFlow', ['/loomflow <task>', 'Autopilot unless supervised.'], 0)
+card('requirement', 1, 1, 0, 'REQUIREMENT · FIVE Cs', 'Refine the requirement', ['Ask every gap in one message.', 'Record assumptions + criteria.'], 1)
+card('size', 1, 2, 0, 'SIZING · ORCHESTRATOR', 'Size the change', ['Small, Normal, or Major.', 'Review mode keeps a larger size.'], 2)
+# 2 BUILD
+card('build-sn', 2, 0, 0, 'SMALL · NORMAL', 'Delegate the build', ['Builder checks and opens the PR.', 'Major only by path = Normal.'], 3)
+card('draft', 2, 2, 0, 'MAJOR · BUILDER', 'Draft the design note', ['Draft PR: x over y, deletions,', 'and the one safety fact.'], 3)
+card('design', 2, 3, 0, 'DESIGN REVIEW', 'Review the design', ['Blocker/major → revise once.', 'R2 only if a blocker is open.'], 4, 'cond')
+card('build-major', 2, 3, 1, 'MAJOR · BUILDER', 'Build and prove', ['Safety fact + proof in PR body.', 'Mark the PR ready.'], 5)
+card('series', 2, 1, 1, 'MAJOR SERIES · MORE THAN ONE PR', 'PRs target a feature branch', ['Local check gates; CI runs cancelled; trail file.', 'Redesign series: stop after the last merge; user tests.'], 5, 'cond', span=2)
+# 3 PREPARE
+card('entry', 3, 0, 0, 'REVIEW MODE ENTRY', 'Existing PR', ['/loomflow <PR> [full|scan]', 'Skip requirement and build.'], 0, 'cond')
+card('setup', 3, 1, 0, 'SETUP · ORCHESTRATOR', 'Verify the PR', ['Open PR · HEAD = headRefOid.', 'Clean worktree · fetch base.'], 6)
+card('triage', 3, 2, 0, 'TRIAGE · ORCHESTRATOR', 'Select the review tier', ['Scan only for small, safe diffs.', 'Sensitive path or doubt → full.'], 7)
+# 4 REVIEW
+card('scan', 4, 0, 0, 'SCAN', 'One quick reviewer', ['No blocker/major → checks.', 'Findings → full round 1.'], 8, 'cond')
+card('full', 4, 0, 1, 'FULL · ROUND 1 OR 2', 'Reviewers A + B', ['Same head SHA, in parallel.', 'Round 2: fixes + new commits.'], 8)
+card('validate', 4, 1, 0.5, 'ORCHESTRATOR', 'Validate the reports', ['PR, mode, round, SHA match.', 'Bad or missing report → stop.'], 9)
+card('checks', 4, 2, 0.5, 'CHECKS', 'Reuse + watch checks', ['Reuse passing results; watch CI.', 'A failed check is a blocker.'], 10)
+# 5 FIX
+card('analyzer', 5, 0, 0, 'ANALYZER · ONE', 'Fix or rebut', ['Every finding and failed check.', 'Test first · push · report IDs.'], 11, 'fix')
+card('open', 5, 1, 0, 'AFTER FIXES', 'Anything still open?', ['Blocker, major, user critical?', 'No → gate. Yes → stop.'], 12)
+# 6 GATE
+card('gate', 6, 1, 0, 'TEST AND MERGE · ONCE', 'Run the merge gate', ['SHA · clean tree · reuse · CI.', 'MERGEABLE + CLEAN, no retry.'], 13)
+card('merge', 6, 1, 1, 'PASS', 'Merge the head', ['gh merge --match-head-commit.', 'Never --admin or force.'], 14)
+# 7 CLOSE
+card('retro', 7, 1, 0, 'EVERY EXIT', 'Record the retro', ['One TSV row, also on a stop.', 'Then the final report.'], 15)
+
+# ---- edges -----------------------------------------------------------
+edges = []   # drawn before the cards so that the connectors stay behind them
+
+def route(pts, r=8):
+    d = f'M {pts[0][0]:g} {pts[0][1]:g}'
+    for i in range(1, len(pts) - 1):
+        (x0, y0), (x1, y1), (x2, y2) = pts[i - 1], pts[i], pts[i + 1]
+        l1 = abs(x1 - x0) + abs(y1 - y0); l2 = abs(x2 - x1) + abs(y2 - y1)
+        k1 = min(r, l1 / 2) / l1; k2 = min(r, l2 / 2) / l2
+        ax, ay = x1 - (x1 - x0) * k1, y1 - (y1 - y0) * k1
+        bx, by = x1 + (x2 - x1) * k2, y1 + (y2 - y1) * k2
+        d += f' L {ax:g} {ay:g} Q {x1:g} {y1:g} {bx:g} {by:g}'
+    return d + f' L {pts[-1][0]:g} {pts[-1][1]:g}'
+
+def edge(pts, kind='', animate=False):
+    d = route(pts)
+    edges.append(f'<path d="{d}" class="edge {kind}"/>')
+    if animate:
+        edges.append(f'<circle r="3.5" class="dot"><animateMotion dur="2.8s" repeatCount="indefinite" path="{d}"/></circle>')
+
+def label(text, x, y, kind='', anchor='start'):
+    edges.append(f'<text x="{x:g}" y="{y:g}" class="elabel {kind}" text-anchor="{anchor}">{escape(text)}</text>')
+
+# DEFINE
+edge([R('start'), L('requirement')], animate=True)
+edge([R('requirement'), L('size')], animate=True)
+# Size branches: Small/Normal go left, Major goes straight down.
+b1 = bus(1)
+edge([B('size', -70), (T('size', -70)[0], b1), (B('build-sn')[0], b1), T('build-sn')], 'cond', True)
+label('Small / Normal', B('size', -78)[0], b1 - 4, anchor='end')
+edge([B('size', 50), T('draft', 50)], 'cond')
+label('Major', B('size', 58)[0], b1 + 4)
+# BUILD (Major design loop)
+edge([R('draft'), L('design')])
+edge([B('design', 50), T('build-major', 50)])
+label('clear or revised', B('design', 58)[0], B('design')[1] + 19)
+by = B('design')[1] + 11
+edge([B('design', -50), (B('design', -50)[0], by), (B('draft', 50)[0], by), B('draft', 50)], 'fix')
+label('revise once', (B('design', -50)[0] + B('draft', 50)[0]) / 2, by + 13, 'fix', 'middle')
+# Every build ends in a PR for review mode.
+b2 = bus(2)
+setup_in = T('setup')
+edge([B('build-sn'), (B('build-sn')[0], b2), (setup_in[0], b2), setup_in], animate=True)
+edge([B('build-major'), (B('build-major')[0], b2), (setup_in[0], b2), setup_in])
+label('PR ready for review', B('build-sn')[0] + 8, b2 - 4)
+# PREPARE
+edge([R('entry'), L('setup')], 'cond')
+edge([R('setup'), L('triage')], animate=True)
+b3 = bus(3)
+tb = B('triage')[1]
+# full goes round the left of the scan card; scan goes straight down.
+edge([B('triage', -50), (B('triage', -50)[0], tb + 20), (152, tb + 20), (152, L('full')[1]), L('full')], 'cond', True)
+label('full', 600, tb + 16)
+edge([B('triage', 50), (B('triage', 50)[0], tb + 36), (T('scan')[0], tb + 36), T('scan')], 'cond')
+label('scan', 600, tb + 50)
+# REVIEW
+edge([B('scan', -30), T('full', -30)], 'fix')
+label('findings: escalate', B('scan', -22)[0], B('scan')[1] + 19, 'fix')
+sv = R('scan')
+edge([sv, (T('checks')[0], sv[1]), T('checks')], 'cond')
+label('no blocker / major', R('scan')[0] + 14, sv[1] - 6)
+fv = R('full')
+edge([fv, (fv[0] + 12, fv[1]), (fv[0] + 12, L('validate')[1]), L('validate')], animate=True)
+edge([R('validate'), L('checks')], animate=True)
+# findings and failed checks both go to the one analyzer
+b4 = bus(4)
+an_in = T('analyzer', 60)
+edge([B('validate', -30), (B('validate', -30)[0], b4), (an_in[0], b4), an_in], 'fix')
+label('findings', B('validate', -38)[0], b4 - 4, 'fix', 'end')
+edge([B('checks', -30), (B('checks', -30)[0], b4), (B('validate', -30)[0], b4)], 'fix')
+label('failed check', B('checks', -38)[0], b4 - 4, 'fix', 'end')
+# FIX
+edge([T('analyzer', -90), B('full', -90)], 'fix')
+label('round 2', T('analyzer', -82)[0], B('full')[1] + 24, 'fix')
+label('if round 1 changed head', T('analyzer', -82)[0], B('full')[1] + 36, 'fix')
+edge([R('analyzer'), L('open')])
+# Checks pass go to the gate; they cross the open-issue stop line once.
+b5 = bus(5)
+gate_in = T('gate')
+edge([B('checks', 50), (B('checks', 50)[0], b5), (gate_in[0] + 40, b5), (gate_in[0] + 40, gate_in[1])], animate=True)
+label('checks pass', B('checks', 58)[0], B('checks')[1] + 19)
+edge([B('open', -40), T('gate', -40)])
+label('none open', B('open', -32)[0], B('open')[1] + 24)
+# GATE
+edge([B('gate'), T('merge')], animate=True)
+label('pass', B('gate', 8)[0], B('gate')[1] + 19)
+# CLOSE
+edge([B('merge'), T('retro')], animate=True)
+
+# Stop lane: one node. Every stop arrow joins it.
+lane_top = band_y[1][0] + PAD
+lane_bot = band_y[5][0] + band_y[5][1] - PAD
+def stop(src, why):
+    x, y = src
+    edge([src, (LANE_X, y)], 'stop')
+    for i, text in enumerate(why):
+        label(text, (x + LANE_X) / 2, y - 14 + i * 12 - 12 * (len(why) - 1), 'stop', 'middle')
+stop(R('design'), ['blocker open', 'after design', 'round 2'])
+stop(R('open'), ['blocker/major open after', 'the final round, or user critical'])
+stop(R('gate'), ['gate failed'])
+lane_mid = (lane_top + lane_bot) / 2
+rx, ry = R('retro')
+edge([(LANE_X + LANE_W / 2, lane_bot), (LANE_X + LANE_W / 2, ry), (rx, ry)], 'stop')
+
+parts.extend(edges[:0])  # placeholder to keep the draw order explicit below
+
+# ---- bands and lane (behind the edges) --------------------------------
+back = []
+for i, (num, name, note, rows) in enumerate(STAGES):
+    top, h = band_y[i]
+    back.append(f'<rect x="{BAND_X}" y="{top}" width="{BAND_W}" height="{h}" rx="14" class="band b{num}"/>')
+    cy = top + h / 2
+    back.append(f'<circle cx="38" cy="{cy - 14:g}" r="14" class="snum"/><text x="38" y="{cy - 8.5:g}" class="snumtext">{num}</text>')
+    back.append(f'<text x="28" y="{cy + 22:g}" class="sname">{name}</text>')
+    back.append(f'<text x="28" y="{cy + 38:g}" class="snote">{note}</text>')
+back.append(f'<rect x="{LANE_X}" y="{lane_top}" width="{LANE_W}" height="{lane_bot - lane_top}" rx="14" class="lane"/>')
+ly = lane_top + 24
+lane_lines = [('t', 'STOP'), ('n', 'Manual handling'), ('d', 'Report the open'), ('d', 'issue and the PR.'), ('g', ''),
+              ('d', 'Also stops on:'), ('d', '· closed/merged PR'), ('d', '· setup mismatch'), ('d', '· bad or missing'), ('d', '  direct report'), ('d', '· ambiguous result')]
+for kind, text in lane_lines:
+    if kind == 't':
+        back.append(f'<text x="{LANE_X + 14}" y="{ly}" class="lanetag">{text}</text>'); ly += 24
+    elif kind == 'n':
+        back.append(f'<text x="{LANE_X + 14}" y="{ly}" class="name" style="font-size:14px">{text}</text>'); ly += 22
+    elif kind == 'g':
+        ly += 10
+    else:
+        back.append(f'<text x="{LANE_X + 14}" y="{ly}" class="detail" style="font-size:12px">{escape(text)}</text>'); ly += 17
+
+parts.extend(back)
+parts.extend(edges)
+
+for key, tag, name, lines, delay, tone in nodes:
+    x, y, w, h = cards[key]
+    # A text line must fit the card: about 6.3 px per character at 13 px.
+    for line in lines:
+        assert len(line) * 6.3 <= w - 28, f'{key}: line too long: {line}'
+    assert len(name) * 9.4 <= w - 28, f'{key}: name too long: {name}'
+    parts.append(f'<g id="{key}"><rect x="{x}" y="{y}" width="{w}" height="{h}" rx="12" class="card {tone}"/>')
+    parts.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="12" class="pulse" style="animation-delay:{delay * 1.4:g}s"/>')
+    parts.append(f'<text x="{x + 14}" y="{y + 19}" class="tag">{escape(tag)}</text>')
+    parts.append(f'<text x="{x + 14}" y="{y + 42}" class="name">{escape(name)}</text>')
+    for i, line in enumerate(lines):
+        parts.append(f'<text x="{x + 14}" y="{y + 62 + i * 17}" class="detail">{escape(line)}</text>')
     parts.append('</g>')
 
-parts.append('''<text x="938" y="585" class="label" style="font-size:12px">Blocker after R2 → stop</text>
-<text x="25" y="1801" class="caption">Supervised mode: approve the requirement, plan or design, and start of the gate.</text>
-<text x="25" y="1826" class="caption">Major redesign series: user tests the feature branch before the final sync PR.</text>
-<text x="25" y="1851" class="caption">Direct reports control the run. PR review and analyzer comments are audit copies.</text>
-<text x="25" y="1876" class="label">Source: docs/loomflow.md (canonical) · generated by scripts/generate-loomflow-diagram.py</text>
+parts.append(f'''<text x="25" y="{FOOT + 10}" class="caption">Supervised mode (only when asked): the user approves the requirement, the plan or design note, and the start of the gate.</text>
+<text x="25" y="{FOOT + 34}" class="caption">At most two review rounds and one merge gate. No round 3, no second gate, no restart. Commits after the last review are reported as unreviewed.</text>
+<text x="25" y="{FOOT + 58}" class="caption">Direct agent reports control the run. PR review and analyzer comments are audit copies. Only the user starts a run.</text>
+<text x="25" y="{FOOT + 86}" class="label">Source: docs/loomflow.md (canonical) · generated by scripts/generate-loomflow-diagram.py</text>
 </svg>''')
 svg = '\n'.join(parts)
 root = ET.fromstring(svg)
-ns = {'s':'http://www.w3.org/2000/svg'}
-assert len(root.findall('s:g',ns)) == len(nodes)
+ns = {'s': 'http://www.w3.org/2000/svg'}
+assert len(root.findall('s:g', ns)) == len(nodes)
 assert len({node[0] for node in nodes}) == len(nodes)
-assert root.findall('.//s:animateMotion',ns)
+assert root.findall('.//s:animateMotion', ns)
 OUT.write_bytes((svg + '\n').encode('utf-8'))
 print(f'Generated {OUT}: {len(nodes)} named boxes; SVG XML and animation paths checked.')
