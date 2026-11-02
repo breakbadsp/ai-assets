@@ -41,6 +41,8 @@
 
 Read each skill in `$HOME/ai/skills/` (with or without the `principle-` prefix) at the step it governs.
 
+When adding a product feature or component, also read `no-parts-is-best-parts` during design, build, and review. This applies to every change size, including design decisions made during a Small or Normal build.
+
 - Requirement: FiveCsReview.
 - Bug investigation: fix-root-causes.
 - Design (Major): redesign-from-first-principles, foundational-thinking, model-the-domain, subtract-before-you-add, laziness-protocol, blast-radius.
