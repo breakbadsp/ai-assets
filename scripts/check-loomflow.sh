@@ -16,15 +16,14 @@ grep -Fq '"Agent communication"' "$command"
 # Keep role defaults and fallback instructions within the reasoning policy.
 grep -Fq 'Never use reasoning effort above high' "$root/AGENTS.md"
 grep -Fq 'Always use Opus at medium effort' "$root/AGENTS.md"
-grep -Fxq 'effort: medium' "$root/claude/agents/pr-builder.md"
 if grep -En 'Opus 5\.5[, ]+`?high|Sol `?xhigh|effort: (xhigh|max|ultra)' \
   "$root/AGENTS.md" "$spec" "$command" "$root"/claude/agents/*.md; then
   printf 'Reasoning settings exceed the policy.\n' >&2
   exit 1
 fi
-# Model policy: coding work (build, review, tests, fixes, gate) uses Sonnet 5.5
-# at high effort or Opus 5.5 at medium effort. Terra runs only at high effort.
-# Noncoding model choices are not checked.
+# Model policy: the orchestrator picks the model and effort of each role from
+# the model table. Role files set neither, so no role can run on a stale pin.
+# Terra runs only at high effort. Noncoding model choices are not checked.
 fail() {
   printf '%s\n' "$*" >&2
   exit 1
@@ -37,14 +36,13 @@ frontmatter() {
   ' "$1"
 }
 check_role_model() {
-  local file="$1" model effort
+  local file="$1" key
   test -s "$file" || fail "$file: missing role file."
-  model="$(frontmatter "$file" model)"
-  effort="$(frontmatter "$file" effort)"
-  case "$model/$effort" in
-    sonnet/high | opus/medium) ;;
-    *) fail "$file: coding role needs sonnet/high or opus/medium, found '$model/$effort'." ;;
-  esac
+  for key in model effort; do
+    if [[ -n "$(frontmatter "$file" "$key")" ]]; then
+      fail "$file: role files must not set '$key'. The orchestrator selects it."
+    fi
+  done
 }
 # Join wrapped lines so that "Terra" and its effort match across a line break.
 check_terra_effort() {

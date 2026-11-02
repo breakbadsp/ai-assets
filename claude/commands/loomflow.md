@@ -22,7 +22,7 @@ First run "Requirement (build mode, step 0)" in `$HOME/ai/docs/loomflow.md`. The
 
 1. `gh pr view <PR> --json number,state,baseRefName,headRefName,headRefOid,url`. Stop if the PR is closed or merged.
 2. Use the worktree that holds the PR branch (`git worktree list`), never the primary checkout. Run `git fetch origin`. HEAD must equal `headRefOid` and `git status --porcelain` must be empty. Otherwise stop and report.
-3. Start roles with the Agent tool, or a delegation tool for another model family, and the `subagent_type` below. Select models and effort as described below; the models in the role files are only fallbacks. Read-only roles (reviewers, test merger) must leave HEAD and the worktree unchanged. If they did not, stop and report.
+3. Start roles with the Agent tool, or a delegation tool for another model family, and the `subagent_type` below. Select models and effort as described below. Role files set no model or effort. Read-only roles (reviewers, test merger) must leave HEAD and the worktree unchanged. If they did not, stop and report.
 4. Follow "Agent communication" in the shared specification. Use direct reports for decisions and task inputs for the next role. Keep PR comments as audit copies; do not fetch them to transfer internal findings. Include user-raised issues in the handoff and check them before the gate.
 
 ## Model and reasoning selection

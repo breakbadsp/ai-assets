@@ -59,7 +59,7 @@ Read each skill in `$HOME/ai/skills/` (with or without the `principle-` prefix) 
 
 ## Model and reasoning selection
 
-Pick the models from the size of the change. Pass the model and effort to every role; role defaults are only fallbacks.
+Pick the models from the size of the change. Pass the model and effort to every role. Role files set no model or effort.
 
 | Size | When | Builder | Reviewer A | Reviewer B | Analyzer | Gate |
 | --- | --- | --- | --- | --- | --- | --- |
