@@ -17,17 +17,7 @@ commands, paths, and quoted text. Consult the specification when needed.
   a clear need. Keep durable rules short and maintain one source per rule.
 - Write docs only for what code cannot show: why x was chosen over y,
   constraints, and how to operate or verify. Do not restate code in docs.
-- For coding work, including code review and writing tests, use Sonnet 5.5 at high
-  effort or Opus 5.5 at medium effort. Do not use Terra for coding work.
-  If one is unavailable, use the other. If both are unavailable, stop and report.
-- Use GPT 6.1 Terra only at high effort. Select the reasoning effort for other
-  models to suit the task. Never use reasoning effort above high, including
-  Extra High (`xhigh`). Always use Opus at medium effort. These limits apply to
-  every role and fallback.
-- By default, do not use Astra 6.
-- Use Astra 6 medium for UI/UX design review. This role does not require a
-  different model family or an increase to high. It gives no Astra exception
-  for code review or build.
+- Use orchestrator judgment to select models and reasoning effort for each task.
 
 ## C++
 
