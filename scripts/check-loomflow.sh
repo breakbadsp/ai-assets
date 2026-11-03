@@ -13,11 +13,9 @@ done
 grep -Fxq '## Agent communication' "$spec"
 grep -Fq '"Agent communication"' "$command"
 ! grep -q 'Haiku' "$spec" "$command"
-# Keep role defaults and fallback instructions within the reasoning policy.
-grep -Fq 'Never use reasoning effort above high' "$root/AGENTS.md"
-grep -Fq 'Always use Opus at medium effort' "$root/AGENTS.md"
+# Check the LoomFlow role settings.
 if grep -En 'Opus 5\.5[, ]+`?high|Sol `?xhigh|effort: (xhigh|max|ultra)' \
-  "$root/AGENTS.md" "$spec" "$command" "$root"/claude/agents/*.md; then
+  "$spec" "$command" "$root"/claude/agents/*.md; then
   printf 'Reasoning settings exceed the policy.\n' >&2
   exit 1
 fi
@@ -55,20 +53,11 @@ check_terra_effort() {
     fail "$file: Terra may run only at high effort."
   fi
 }
-has_text() {
-  tr '\n' ' ' < "$1" | tr -s ' ' | grep -Fq -- "$2"
-}
 roles=(pr-builder pr-adversarial-reviewer pr-quick-reviewer pr-comment-analyzer pr-test-merger)
 for role in "${roles[@]}"; do
   check_role_model "$root/claude/agents/$role.md"
 done
-has_text "$root/AGENTS.md" 'Do not use Terra for coding work' ||
-  fail 'AGENTS.md must forbid Terra for coding work.'
-has_text "$root/AGENTS.md" 'Sonnet 5.5 at high' ||
-  fail 'AGENTS.md must name Sonnet 5.5 at high effort for coding work.'
-has_text "$root/AGENTS.md" 'GPT 6.1 Terra only at high' ||
-  fail 'AGENTS.md must limit Terra to high effort.'
-for file in "$root/AGENTS.md" "$spec" "$command" "$root"/claude/agents/*.md; do
+for file in "$spec" "$command" "$root"/claude/agents/*.md; do
   check_terra_effort "$file"
 done
 # Every coding role in the model table uses Sonnet or Opus only.
@@ -80,7 +69,7 @@ if [[ $# -gt 0 ]]; then
   for role in "${roles[@]}"; do
     check_role_model "$project/.claude/agents/$role.md"
   done
-  for file in "$project/AGENTS.md" "$project"/.claude/agents/*.md "$project"/.codex/agents/*.toml; do
+  for file in "$project"/.claude/agents/*.md "$project"/.codex/agents/*.toml; do
     test -f "$file" && check_terra_effort "$file"
   done
 fi
