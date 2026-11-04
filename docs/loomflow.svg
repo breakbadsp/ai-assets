@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1424 1368" role="img" aria-labelledby="title desc">
 <title id="title">LoomFlow — build and review workflow</title>
-<desc id="desc">Six stages. Define: refine the requirement and size the change. Build: Small and Normal builds go straight to a PR; Major builds add a design note and design review. Prepare: verify the PR and select the scan or full review. Review: scan, or two full reviewers, then validate the reports and checks. Fix: one analyzer fixes or rebuts findings and failed checks; round 2 reuses the review stage once. Finish: one merge gate, then the merge, then the retrospective; every exit, including a stop, records it.</desc>
+<desc id="desc">Six stages. Define: refine the requirement and size the change. Build: Small and Normal builds go straight to a PR; Major builds add a design note with a measured spike, and a design review. Prepare: verify the PR and select the scan or full review. Review: scan, or two full reviewers, then validate the reports and checks. Fix: one analyzer fixes or rebuts findings and failed checks; round 2 reuses the review stage once. Finish: one merge gate, then the merge, then the retrospective; every exit, including a stop, records it.</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/></marker></defs>
 <style>
 :root { --bg:var(--background,#ffffff); --fg:var(--foreground,#172033); --mute:var(--muted-foreground,#58667b); --card-bg:var(--card,#f5f7fb); --blue:var(--primary,#3971ed); --amber:var(--warning,#bc7700); --red:var(--destructive,#cf4051) }
@@ -184,7 +184,7 @@ text { font-family:Inter,Arial,sans-serif; fill:var(--fg) }
 <text x="714" y="317" class="tag">MAJOR · BUILDER</text>
 <text x="714" y="340" class="name">Draft the design note</text>
 <text x="714" y="360" class="detail">Bugs: investigate before design.</text>
-<text x="714" y="377" class="detail">State the one safety fact.</text>
+<text x="714" y="377" class="detail">Spike: measure the safety fact.</text>
 </g>
 <g id="design"><rect x="964" y="298" width="240" height="90" rx="12" class="card cond"/>
 <rect x="964" y="298" width="240" height="90" rx="12" class="pulse" style="animation-delay:5.6s"/>
