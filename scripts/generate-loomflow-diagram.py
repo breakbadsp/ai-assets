@@ -41,7 +41,7 @@ def bus(stage):
 
 parts = [f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" aria-labelledby="title desc">
 <title id="title">LoomFlow — build and review workflow</title>
-<desc id="desc">Six stages. Define: refine the requirement and size the change. Build: Small and Normal builds go straight to a PR; Major builds add a design note and design review. Prepare: verify the PR and select the scan or full review. Review: scan, or two full reviewers, then validate the reports and checks. Fix: one analyzer fixes or rebuts findings and failed checks; round 2 reuses the review stage once. Finish: one merge gate, then the merge, then the retrospective; every exit, including a stop, records it.</desc>
+<desc id="desc">Six stages. Define: refine the requirement and size the change. Build: Small and Normal builds go straight to a PR; Major builds add a design note with a measured spike, and a design review. Prepare: verify the PR and select the scan or full review. Review: scan, or two full reviewers, then validate the reports and checks. Fix: one analyzer fixes or rebuts findings and failed checks; round 2 reuses the review stage once. Finish: one merge gate, then the merge, then the retrospective; every exit, including a stop, records it.</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/></marker></defs>
 <style>
 :root {{ --bg:var(--background,#ffffff); --fg:var(--foreground,#172033); --mute:var(--muted-foreground,#58667b); --card-bg:var(--card,#f5f7fb); --blue:var(--primary,#3971ed); --amber:var(--warning,#bc7700); --red:var(--destructive,#cf4051) }}
@@ -116,7 +116,7 @@ card('requirement', 1, 1, 0, 'REQUIREMENT · FIVE Cs', 'Refine the requirement',
 card('size', 1, 2, 0, 'SIZING · ORCHESTRATOR', 'Size the change', ['Small, Normal, or Major.', 'Review mode keeps a larger size.'], 2)
 # 2 BUILD
 card('build-sn', 2, 0, 0, 'SMALL · NORMAL', 'Delegate the build', ['Bugs: investigate before build.', 'Builder opens the PR.'], 3)
-card('draft', 2, 2, 0, 'MAJOR · BUILDER', 'Draft the design note', ['Bugs: investigate before design.', 'State the one safety fact.'], 3)
+card('draft', 2, 2, 0, 'MAJOR · BUILDER', 'Draft the design note', ['Bugs: investigate before design.', 'Spike: measure the safety fact.'], 3)
 card('design', 2, 3, 0, 'DESIGN REVIEW', 'Review the design', ['Blocker/major → revise once.', 'R2 only if a blocker is open.'], 4, 'cond')
 card('build-major', 2, 3, 1, 'MAJOR · BUILDER', 'Build and prove', ['Safety fact + proof in PR body.', 'Mark the PR ready.'], 5)
 card('series', 2, 1, 1, 'MAJOR SERIES · MORE THAN ONE PR', 'PRs target a feature branch', ['Local check gates; CI runs cancelled; trail file.', 'Redesign series: stop after the last merge; user tests.'], 5, 'cond', span=2)

@@ -12,7 +12,7 @@ PR number, worktree path, round number, head SHA, and mode (`full` or `design`).
 
 ## Scope
 
-- Mode `design`: review only the design note in the PR body. Report a requirement it does not meet, a simpler option it misses, a missing deletion, a wrong safety fact, and over-design: a decision that does not block the first verifiable unit. Read code only to check these. Use the header `## Design review, round <n>` and IDs `D<n>-<i>`. In round 2, check only whether the round-1 design `blocker`s still hold for the revised note.
+- Mode `design`: review only the design note in the PR body. Report a requirement it does not meet, a simpler option it misses, a missing deletion, a wrong safety fact, a claim with no measurement where a cheap one existed, a spike whose numbers do not support the design, and over-design: a decision that does not block the first verifiable unit. Read code only to check these. Use the header `## Design review, round <n>` and IDs `D<n>-<i>`. In round 2, check only whether the round-1 design `blocker`s still hold for the revised note.
 - Read the diff (`gh pr diff`) and only the surrounding code you need. Apply the "Review" skills in `$HOME/ai/docs/loomflow.md`. Read `AGENTS.md` and any rules file it names for the file types in the diff.
 - Check correctness, failure paths, missing tests for changed behavior, and repository rule violations in `AGENTS.md`. A second reviewer works independently, so do not hold back a finding because you expect it to find it.
 - Read the PR title and body (`gh pr view <PR> --json title,body`). A claim there that the diff does not meet is a finding.
