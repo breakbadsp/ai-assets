@@ -9,6 +9,7 @@ Shared instructions and language conventions for AI coding tools.
 - `skills/cpp-*`: the C++ coding standards, one skill per topic. `AGENTS.md`
   routes each C++ task to its skill.
 - `docs/loomflow.md`, `claude/commands/loomflow.md`, and `claude/agents/`: the shared LoomFlow workflow and roles. Projects may use small command and role files that read these shared files.
+- `docs/kaizenflow.md`, `claude/commands/kaizenflow.md`, and `claude/agents/kaizen-reviewer.md`: KaizenFlow, the light version of LoomFlow. `scripts/flow-cost.py` compares the cost of the two flows.
 - `install.sh`: links these assets into the locations agents discover.
 
 ## Restore or install
