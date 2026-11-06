@@ -2,6 +2,10 @@
 
 KaizenFlow is the light version of [LoomFlow](loomflow.md). The operating instructions are in [the command](../claude/commands/kaizenflow.md) and [the reviewer](../claude/agents/kaizen-reviewer.md). This file records why the flow has this shape and how to verify it.
 
+![Detailed KaizenFlow workflow](kaizenflow.svg)
+
+Regenerate the diagram with `python3 scripts/generate-kaizenflow-diagram.py`. Use `--check` to detect a stale SVG. The operating instructions remain the source of truth.
+
 ## Baseline
 
 Source: 51 Claude Code sessions with LoomFlow roles, and 88 retro rows, up to 2026-11-05. Codex runs are not included. Some sessions also hold other chat. Tokens are weighted by the formula in `scripts/flow-cost.py`, which ignores the price of each model.
