@@ -25,7 +25,7 @@ Judge by what a mistake costs, not by line count or path. A depth that the user 
 - For a bug, reproduce it and find the cause first.
 - At `deep`, write "x over y, and why" in the PR body first. If one fact decides the design and a cheap throwaway measurement exists, measure it.
 - Build in this session. Delegate to one fresh builder only when the work will clearly fill this context. Give it the goal, worktree, and branch. Ask it to return the PR URL, head SHA, and proof in a few lines. Keep the same builder for fixes.
-- Verify with `scripts/kaizen-checks.sh`. It maps the changed files and their blast radius to the checks in `.kaizen-checks`, and runs only those. Run it before the first push. CI runs the same script, so CI is the proof after that. If the repository has no `.kaizen-checks`, run its full check once before the first push.
+- Verify with `$HOME/ai/scripts/kaizen-checks.sh`. It maps the changed files and their blast radius to the checks in `.kaizen-checks`, and runs only those. Run it before the first push. CI runs the same script, so CI is the proof after that. If the repository has no `.kaizen-checks`, run its full check once before the first push.
 - PR body, in a few lines: the goal, the acceptance criteria, and the fact that makes the change safe with its proof.
 
 ## 3. Review
@@ -36,7 +36,7 @@ Start `kaizen-reviewer` with the PR number, worktree path, and head SHA. Give it
 
 Fix in the context that wrote the code: this session, or the same builder. For a PR that you did not build, this session fixes.
 
-- Check each `blocker` and `major` in the code. Fix it minimally, or rebut it with evidence. Add a test that fails without the fix when a cheap target exists. Run `scripts/kaizen-checks.sh` again: it selects the affected checks.
+- Check each `blocker` and `major` in the code. Fix it minimally, or rebut it with evidence. Add a test that fails without the fix when a cheap target exists. Run `$HOME/ai/scripts/kaizen-checks.sh` again: it selects the affected checks.
 - A failed check is a `blocker`: read its log and fix the cause. If the log shows that this PR did not cause it, rerun that job once.
 - Run round 2 only when a fix changes behavior beyond the faulty lines, touches callers, or you rebutted a `blocker`. Use one reviewer. Pass the old head SHA, the findings, and the outcomes. State the decision in one line.
 
@@ -49,7 +49,7 @@ Fix in the context that wrote the code: this session, or the same builder. For a
 
        $HOME/ai/scripts/kaizen-merge.sh <PR> <head SHA>
 
-   Add `--no-ci` only when no workflow covers the changed files. In that case, `scripts/kaizen-checks.sh --all` must pass on the final head first.
+   Add `--no-ci` only when no workflow covers the changed files. In that case, `$HOME/ai/scripts/kaizen-checks.sh --all` must pass on the final head first. If the repository has no `.kaizen-checks`, its full check must pass on the final head first.
 
 ## Hard limits
 
