@@ -43,6 +43,16 @@ No merge with an open `blocker` or `major` or a failed check, exact head merge, 
 - `quick` has no independent review. The 5 Small rows in the retro were all clean, but that sample is small.
 - Major series, design rounds, and two design tracks. Use LoomFlow for that work.
 
+## Selective checks
+
+`$HOME/ai/scripts/kaizen-checks.sh` is the one place that decides which checks a change needs. The builder, the fixer, and CI all call it, so the local result and the CI result agree. It reads `.kaizen-checks` in the repository root. Each check lists the globs that trigger it, and the dependents of its inputs belong in those globs: that is the blast radius.
+
+- Safe by default. A changed file that no rule names runs every check. A rule file entry `@all` (build config, shared headers, the rules file itself) also runs every check. Only `@skip` globs, such as docs, run nothing.
+- Quality gate. `--all` runs every check. Use it as a scheduled or `--no-ci` run, so a wrong glob cannot hide a defect for long.
+- Cost. Glob matching is the only logic, so the script needs no build graph. A glob that is too narrow is the failure mode: review the rules file as code.
+
+Use `--list` to see the selection without running it, and `--base REF` to change the comparison point. In CI, fetch full history and pass the base: see `.github/workflows/checks.yml`.
+
 ## Verify
 
 The expected gain is a target, not a result: at least 40% fewer weighted tokens per median run, with no rise in defects after merge.
@@ -50,5 +60,7 @@ The expected gain is a target, not a result: at least 40% fewer weighted tokens 
 1. Run KaizenFlow on about 10 real changes. Include at least 2 at `deep`.
 2. Run `python3 scripts/flow-cost.py --since <trial start>` and compare the two rows.
 3. Read the `lesson` column. Apply one subtraction.
+
+To test `kaizen-checks.sh`, change one file per rule in a scratch clone and run `$HOME/ai/scripts/kaizen-checks.sh --base main --list`. Check a mapped file, a skipped file, a shared file, and an unmapped file.
 
 To test `kaizen-merge.sh` safely, put a stub `gh` on `PATH` that passes reads to the real `gh` and only prints `pr merge`. Run it on PRs with failed, cancelled, and passing checks.

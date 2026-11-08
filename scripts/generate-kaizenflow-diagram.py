@@ -49,7 +49,7 @@ STAGES = [
         ]),
         ('proof', 'PROOF AND PR', 'Check, then push', [
             'Run targeted tests during the work.',
-            'Run the full repository check once before the first push. Then CI is the proof.',
+            'Run $HOME/ai/scripts/kaizen-checks.sh before the first push. CI runs it too.',
             'PR body: goal, acceptance criteria, safety fact, and its proof.',
         ]),
     ]),
@@ -73,7 +73,7 @@ STAGES = [
     ('FIX', 'Check findings in the code. Keep the author context.', [
         ('fix', 'AUTHOR OR SAME BUILDER', 'Fix or rebut', [
             'Check each blocker and major. Fix minimally, or rebut with evidence.',
-            'When cheap, add a test that fails without the fix. Run only affected tests.',
+            'When cheap, add a test that fails without the fix. Rerun kaizen-checks.sh.',
             'For an existing PR, this session fixes.',
         ]),
         ('failed', 'FAILED CHECK = BLOCKER', 'Read the failed log', [
@@ -98,7 +98,7 @@ STAGES = [
             'Run kaizen-merge.sh <PR> <head SHA> in the background. Wait once; do not poll.',
             'Check registration: up to six attempts, 10 seconds apart.',
             'CI wait limit: 2,700 seconds. Final buckets must be pass or skipping.',
-            '--no-ci: only if no workflow covers the files and the final head passes the repository check.',
+            '--no-ci: only if no workflow covers the files. Then kaizen-checks.sh --all, or the full repository check without .kaizen-checks, must pass first.',
         ]),
         ('merge', 'EXACT HEAD', 'Merge the checked head', [
             'The script runs gh pr merge with --merge --match-head-commit <SHA>.',
