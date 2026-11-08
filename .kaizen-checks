@@ -1,0 +1,6 @@
+# name	globs	command
+@all	.kaizen-checks scripts/kaizen-checks.sh .github/*
+@skip	*.md docs/*.svg
+installer	install.sh claude/* scripts/check-install.sh	scripts/check-install.sh
+loomflow	docs/loomflow.md claude/commands/loomflow.md claude/agents/pr-* scripts/check-loomflow.sh	scripts/check-loomflow.sh
+diagram	docs/kaizenflow.* claude/commands/kaizenflow.md scripts/generate-kaizenflow-diagram.py	python3 scripts/generate-kaizenflow-diagram.py --check
