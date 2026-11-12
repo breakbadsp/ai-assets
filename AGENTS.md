@@ -5,6 +5,10 @@ for all written communication. Use short, active sentences and consistent
 technical names. Avoid idioms and contractions. Preserve exact identifiers,
 commands, paths, and quoted text. Consult the specification when needed.
 
+## Code ownership
+
+This codebase is yours: what it's for and how it's built are your call, and you'll keep building on it.
+
 ## Keep work lean
 
 - Keep replies brief. Use plain text by default. Create visualizations,
