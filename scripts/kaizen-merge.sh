@@ -41,5 +41,13 @@ if [[ -z "$no_ci" ]]; then
   fi
 fi
 
-gh pr merge "$pr" --merge --match-head-commit "$sha"
+# Use a method the repository allows. Keep merge commits first where allowed.
+method="$(gh repo view --json mergeCommitAllowed,rebaseMergeAllowed,squashMergeAllowed -q \
+  'if .mergeCommitAllowed then "--merge" elif .rebaseMergeAllowed then "--rebase"
+   elif .squashMergeAllowed then "--squash" else "" end')"
+if [[ -z "$method" ]]; then
+  printf 'Not merged: the repository allows no merge method.\n' >&2
+  exit 1
+fi
+gh pr merge "$pr" "$method" --match-head-commit "$sha"
 printf 'Merged PR %s at head %s.\n' "$pr" "$sha"
