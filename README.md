@@ -51,8 +51,9 @@ skill and fixed model requirements. Visual parity is a standalone skill.
 `statechart`, and `tdd` come from
 [open-pstack](https://github.com/ericlitman/open-pstack/tree/faf5121/plugins/pstack/skills)
 commit `faf5121`, which tracks Poteto's pstack for Claude Code. The local
-changes add `disable-model-invocation` and remove links to `poteto-mode`, which
-this repository does not include. The `statechart` scripts download TLC 1.7.4
+changes add `disable-model-invocation`, remove links to `poteto-mode`, which
+this repository does not include, and add the technique decision tables in
+`create-formal-verification-skill/references/techniques.md`. The `statechart` scripts download TLC 1.7.4
 (pinned by checksum) and Java through `mise` on the first run.
 
 To copy the three adapted skills into a project, run:

@@ -36,6 +36,7 @@ Median run: 2.10M weighted tokens, 58 active minutes, 55 orchestrator calls.
 Review costs a full read for each round, and finds only what a reader notices. A test, a verification journey, or a formal check costs one run, and catches the same defect on every later change. So KaizenFlow moves effort to the start and the proof:
 
 - Specify first. Each acceptance criterion names its proof. At `deep`, each invariant names its formal check.
+- A proof plan before code. Each check that the change touches is created, updated, kept, or removed, by its value against its cost. The decision tables live in `create-formal-verification-skill/references/techniques.md`, one source for the command and the skill.
 - TLA+ by judgement, not by default. Writing a model is the cost, and each rerun is cheap, so a model pays when the bug can hide in an order of events and the area will change again. Then it guards against regressions on every later change. Other risks get a cheaper check: a property test, a code verifier, or a table test. The PR body records the choice and the reason in one line, so the retro can show when the choice was wrong.
 - Tests come before code and must fail without the change (`tdd`).
 - Verification skills are code. A PR that changes a covered feature or verified code updates the skill in the same PR. Create one in a separate PR when a repository will get more changes of that kind.
@@ -54,7 +55,6 @@ Gaps from the review of 2026-11-23. Each one needs a script or a rule before it 
 - Mutation testing at `deep`: run a mutation tool on the changed lines through `.kaizen-checks`. A surviving mutant is a finding.
 - Measure the formal choice: add `formal` and `escaped` columns to the retro TSV with a header migration, and report them in `scripts/flow-cost.py`.
 - At `standard`, name in one line the existing invariants that the change touches.
-- Move the detail of "Choose the formal check" into `create-formal-verification-skill`, and keep a short rule in the command.
 
 ## Trade-offs
 

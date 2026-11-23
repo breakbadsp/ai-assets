@@ -28,7 +28,8 @@ STAGES = [
         ('frame', 'SPEC BEFORE CODE', 'Write the spec', [
             'Ask only what blocks the work. Put other assumptions in the PR body.',
             'Behavior in user words. Each acceptance criterion names its proof.',
-            'deep: invariants with their harm, and one line: Formal: <check>, because <reason>.',
+            'deep: invariants with their harm.',
+            'Proof plan: create, update, keep, or remove each check; weigh value against cost.',
         ]),
         ('depth', 'JUDGEMENT', 'Set the depth and proof', [
             'quick: a cheap, visible mistake. Proof: existing checks.',
