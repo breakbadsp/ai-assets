@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KaizenFlow — how it works</title>
+<style>
+  html,body{margin:0;height:100%;background:#07090d;overflow:hidden}
+  canvas{display:block;width:100vw;height:100vh}
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="Animated hub-and-spoke graph of the KaizenFlow build and review flow"></canvas>
+<script>
+(() => {
+'use strict';
+const cv = document.getElementById('c'), cx = cv.getContext('2d');
+const C = {bg:'#07090d', edge:'#1b2430', text:'#d3dce8', mute:'#6b7a8c',
+  cyan:'#5ee7ff', green:'#4ade80', amber:'#fbbf24', red:'#fb7185', violet:'#a78bfa', white:'#e6edf5', gray:'#9aa7b6'};
+const FONT = 'ui-monospace,SFMono-Regular,Menlo,Consolas,monospace';
+const KIND = {task:C.cyan, ok:C.green, blocker:C.red, major:C.amber, info:C.white, row:C.gray};
+
+/* ---------- graph definition ---------- */
+// id, label, short label, sub, shape, angle (deg, clockwise from +x), base colour
+const defs = [
+  ['user',  'USER',             'USER',     'task in · report out',  'circle',  -90, C.cyan],
+  ['checks','kaizen-checks.sh', 'checks.sh','only affected checks',  'square',  -50, C.cyan],
+  ['pr',    'branch + PR',      'PR',       'head SHA',              'doc',     -10, C.cyan],
+  ['ci',    'CI',               'CI',       'runs the same script',  'square',   30, C.cyan],
+  ['gate',  'kaizen-merge.sh',  'merge.sh', 'closed · exact head',   'diamond',  70, C.amber],
+  ['base',  'base branch',      'base',     '',                      'doc',     110, C.green],
+  ['retro', 'retro .tsv',       'retro',    '0 rows',                'doc',     150, C.gray],
+  ['revB',  'reviewer B',       'rev B',    'deep only',             'circle',  190, C.violet, true],
+  ['revA',  'kaizen-reviewer',  'reviewer', 'fresh · read-only',     'circle',  230, C.violet],
+];
+const N = {hub:{id:'hub', x:0, y:0, pulse:0, busy:false, tint:null, depth:'', round:1}};
+for (const [id,label,short,sub,shape,ang,col,ghost] of defs)
+  N[id] = {id,label,short,sub,shape,ang,col,ghost:!!ghost,x:0,y:0,pulse:0,busy:false,tint:null,open:0,openT:0};
+const nodes = Object.values(N);
+const edges = [['hub','user'],['hub','checks'],['hub','pr'],['hub','gate'],['hub','retro'],['hub','revA'],['hub','revB'],
+               ['pr','ci'],['ci','gate'],['gate','base']].map(([a,b]) => ({a,b,heat:0,col:C.cyan,ghost:a==='hub'&&b==='revB'}));
+const edgeOf = (a,b) => edges.find(e => (e.a===a&&e.b===b)||(e.a===b&&e.b===a));
+
+/* ---------- layout ---------- */
+let W,H,DPR,R,CX,CY,S,HR,small;
+function layout(){
+  DPR = Math.min(2, window.devicePixelRatio||1);
+  W = innerWidth; H = innerHeight; small = W < 700;
+  cv.width = W*DPR; cv.height = H*DPR; cx.setTransform(DPR,0,0,DPR,0,0);
+  const margin = small ? 78 : 160;
+  R  = Math.max(90, Math.min(W/2 - margin, H/2 - (small?64:72)));
+  CX = W/2; CY = H/2 + 6;
+  S  = Math.max(12, Math.min(22, R*0.07));
+  HR = Math.max(34, R*0.2);
+  N.hub.x = CX; N.hub.y = CY;
+  for (const d of defs){ const n = N[d[0]], a = n.ang*Math.PI/180; n.x = CX + R*Math.cos(a); n.y = CY + R*Math.sin(a); }
+}
+addEventListener('resize', layout); layout();
+
+/* ---------- simulation clock, packets, effects ---------- */
+let now = 0, fade = 0, scenarioName = '', phaseNow = '', phaseDone = new Set();
+const waiters = [], packets = [], fx = [];
+const sleep = s => new Promise(r => waiters.push({t: now + s, r}));
+const ease = t => t<.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+function send(a, b, kind, label, dur = 1.1){
+  return new Promise(res => {
+    const e = edgeOf(a,b); if (e){ e.col = KIND[kind]; e.heat = 1; }
+    packets.push({a:N[a], b:N[b], kind, label, t:0, dur, res, trail:[]});
+  });
+}
+const ripple = (n, col) => fx.push({x:n.x, y:n.y, age:0, col});
+const phase = p => { if (phaseNow && phaseNow !== p) phaseDone.add(phaseNow); phaseNow = p; };
+const hex = () => Math.random().toString(16).slice(2, 9);
+
+function step(dt){
+  now += dt;
+  for (let i = waiters.length-1; i >= 0; i--) if (waiters[i].t <= now){ const w = waiters.splice(i,1)[0]; w.r(); }
+  for (let i = packets.length-1; i >= 0; i--){
+    const p = packets[i]; p.t += dt/p.dur;
+    const k = ease(Math.min(1,p.t));
+    p.x = p.a.x + (p.b.x-p.a.x)*k; p.y = p.a.y + (p.b.y-p.a.y)*k;
+    p.trail.push([p.x,p.y]); if (p.trail.length > 10) p.trail.shift();
+    if (p.t >= 1){ p.b.pulse = 1; packets.splice(i,1); p.res(); }
+  }
+  for (const n of nodes){ n.pulse = Math.max(0, n.pulse - dt*1.5); n.open += (n.openT - n.open)*Math.min(1, dt*6); }
+  for (const e of edges) e.heat = Math.max(0, e.heat - dt*0.7);
+  for (let i = fx.length-1; i >= 0; i--){ fx[i].age += dt; if (fx[i].age > 1.1) fx.splice(i,1); }
+  fade = Math.max(0, fade - dt*1.6);
+}
+
+/* ---------- drawing ---------- */
+function rr(x,y,w,h,r){ cx.moveTo(x+r,y); cx.arcTo(x+w,y,x+w,y+h,r); cx.arcTo(x+w,y+h,x,y+h,r); cx.arcTo(x,y+h,x,y,r); cx.arcTo(x,y,x+w,y,r); cx.closePath(); }
+function path(n){
+  cx.beginPath();
+  if (n.shape==='circle') cx.arc(n.x,n.y,S,0,7);
+  else if (n.shape==='square') rr(n.x-S,n.y-S,2*S,2*S,4);
+  else if (n.shape==='doc') rr(n.x-S*1.25,n.y-S*.8,S*2.5,S*1.6,4);
+  else { const d=S*1.3; cx.moveTo(n.x,n.y-d); cx.lineTo(n.x+d,n.y); cx.lineTo(n.x,n.y+d); cx.lineTo(n.x-d,n.y); cx.closePath(); }
+}
+function text(t, x, y, size, col, align='center', bold=false){
+  cx.font = `${bold?'600 ':''}${size}px ${FONT}`; cx.textAlign = align; cx.textBaseline = 'middle';
+  cx.lineJoin = 'round'; cx.lineWidth = 4; cx.strokeStyle = C.bg; cx.strokeText(t,x,y);
+  cx.fillStyle = col; cx.fillText(t,x,y);
+}
+function drawNode(n, t){
+  const glow = Math.max(n.pulse, n.busy ? .6 : 0);
+  const col = n.tint || n.col;
+  cx.save();
+  cx.globalAlpha = n.ghost ? .3 : .6 + .4*Math.min(1, glow + (n.tint?.5:0));
+  cx.shadowColor = col; cx.shadowBlur = 22*glow;
+  path(n); cx.fillStyle = '#0b1017'; cx.fill();
+  cx.lineWidth = 1.6 + glow; cx.strokeStyle = col;
+  if (n.ghost) cx.setLineDash([4,4]);
+  cx.stroke(); cx.restore();
+  if (n.id === 'gate'){            // the physical gate: shutter halves slide apart when open
+    const slit = n.open * S*1.5, half = S*.9;
+    cx.save(); cx.fillStyle = col; cx.globalAlpha = .9;
+    cx.fillRect(n.x-half, n.y-S*.3, half-slit/2, S*.6);
+    cx.fillRect(n.x+slit/2, n.y-S*.3, half-slit/2, S*.6);
+    cx.restore();
+  }
+  if (n.busy){                     // working arc
+    cx.save(); cx.strokeStyle = col; cx.lineWidth = 2; cx.globalAlpha = .9;
+    cx.beginPath(); cx.arc(n.x, n.y, S*1.5+5, t*3.2, t*3.2+1.7); cx.stroke(); cx.restore();
+  }
+  // labels
+  const c = Math.cos(n.ang*Math.PI/180), s = Math.sin(n.ang*Math.PI/180), fs = small?10:12, gap = S*1.4+8;
+  const name = small ? n.short : n.label, sub = small ? '' : n.sub;
+  const a = n.ghost ? .45 : 1; cx.save(); cx.globalAlpha = a;
+  if (Math.abs(c) > .45){
+    const al = c > 0 ? 'left' : 'right', x = n.x + Math.sign(c)*gap;
+    text(name, x, n.y - (sub?7:0), fs, C.text, al, true);
+    if (sub) text(sub, x, n.y+8, fs-1, n.tint && n.id==='gate' ? n.tint : C.mute, al);
+  } else {
+    const up = s < 0, y0 = n.y + (up ? -gap-(sub?14:0) : gap);
+    text(name, n.x, y0, fs, C.text, 'center', true);
+    if (sub) text(sub, n.x, y0+15, fs-1, n.tint && n.id==='gate' ? n.tint : C.mute, 'center');
+  }
+  cx.restore();
+}
+function drawHub(t){
+  const n = N.hub, glow = Math.max(n.pulse, n.busy?.6:0);
+  cx.save(); cx.shadowColor = C.cyan; cx.shadowBlur = 26*glow;
+  cx.beginPath(); cx.arc(n.x,n.y,HR,0,7); cx.fillStyle = '#0b1017'; cx.fill();
+  cx.lineWidth = 2; cx.strokeStyle = C.cyan; cx.globalAlpha = .65 + .35*glow; cx.stroke(); cx.restore();
+  if (n.busy){ cx.save(); cx.strokeStyle = C.cyan; cx.lineWidth = 2; cx.setLineDash([6,8]); cx.lineDashOffset = -t*30;
+    cx.beginPath(); cx.arc(n.x,n.y,HR+7,0,7); cx.stroke(); cx.restore(); }
+  const f = small ? 10 : 13;
+  text('SESSION', n.x, n.y - f*1.1, f, C.white, 'center', true);
+  text(n.depth || 'orchestrator', n.x, n.y + 2, f-2, n.depth ? C.cyan : C.mute);
+  text(n.depth ? `round ${n.round}/2` : 'builds + fixes', n.x, n.y + f*1.2 + 2, f-3, C.mute);
+}
+function drawPacket(p){
+  const col = KIND[p.kind];
+  cx.save();
+  for (let i = 0; i < p.trail.length; i++){
+    cx.globalAlpha = (i/p.trail.length)*.35; cx.fillStyle = col;
+    cx.beginPath(); cx.arc(p.trail[i][0], p.trail[i][1], 2+i*.3, 0, 7); cx.fill();
+  }
+  cx.globalAlpha = 1; cx.shadowColor = col; cx.shadowBlur = 16; cx.fillStyle = col;
+  cx.beginPath(); cx.arc(p.x, p.y, 5, 0, 7); cx.fill(); cx.restore();
+  if (p.label) text(p.label, p.x, p.y - 15, small?9:11, col);
+}
+function drawHUD(){
+  const f = small?10:12, x0 = small?14:24;
+  text('KAIZENFLOW', x0, 24, small?12:14, C.white, 'left', true);
+  let x = x0; cx.font = `${f}px ${FONT}`;
+  for (const p of ['FRAME','BUILD','REVIEW','FIX','MERGE','FINISH']){
+    const w = cx.measureText(p).width, on = p === phaseNow, done = phaseDone.has(p);
+    text(p, x, 48, f, on ? C.cyan : done ? C.gray : '#3a4655', 'left', on);
+    if (on){ cx.fillStyle = C.cyan; cx.fillRect(x, 58, w, 2); }
+    x += w + (small?10:18);
+  }
+  text(scenarioName, W - x0, 24, small?10:12, C.mute, 'right');
+  // legend
+  const items = [['task',C.cyan],['pass',C.green],['major',C.amber],['blocker',C.red]];
+  let ly = H - 16 - (items.length-1)*18;
+  for (const [l,c] of items){ cx.save(); cx.fillStyle = c; cx.beginPath(); cx.arc(x0+4, ly, 4, 0, 7); cx.fill(); cx.restore(); text(l, x0+16, ly, 10, C.mute, 'left'); ly += 18; }
+}
+function draw(t){
+  cx.clearRect(0,0,W,H); cx.fillStyle = C.bg; cx.fillRect(0,0,W,H);
+  const g = cx.createRadialGradient(CX,CY,0,CX,CY,Math.max(W,H)*.6);
+  g.addColorStop(0,'#0d1420'); g.addColorStop(1,C.bg); cx.fillStyle = g; cx.fillRect(0,0,W,H);
+  cx.fillStyle = 'rgba(120,150,190,.07)';
+  for (let x = 14; x < W; x += 28) for (let y = 14; y < H; y += 28) cx.fillRect(x,y,1.5,1.5);
+  for (const e of edges){                                   // edges
+    const a = N[e.a], b = N[e.b];
+    cx.save(); if (e.ghost) cx.setLineDash([3,6]);
+    cx.beginPath(); cx.moveTo(a.x,a.y); cx.lineTo(b.x,b.y);
+    cx.strokeStyle = C.edge; cx.lineWidth = 1.2; cx.stroke();
+    if (e.heat > .01){ cx.globalAlpha = e.heat; cx.strokeStyle = e.col; cx.lineWidth = 1.5 + e.heat*1.5; cx.shadowColor = e.col; cx.shadowBlur = 10*e.heat; cx.stroke(); }
+    cx.restore();
+  }
+  for (const f of fx){ const k = f.age/1.1; cx.save(); cx.globalAlpha = (1-k)*.8; cx.strokeStyle = f.col; cx.lineWidth = 2;
+    cx.beginPath(); cx.arc(f.x,f.y,S+k*S*3.5,0,7); cx.stroke(); cx.restore(); }
+  for (const n of nodes) if (n.id !== 'hub') drawNode(n, t);
+  drawHub(t);
+  for (const p of packets) drawPacket(p);
+  drawHUD();
+  if (fade > 0){ cx.fillStyle = `rgba(7,9,13,${Math.min(1,fade)})`; cx.fillRect(0,0,W,H); }
+}
+let last = 0;
+function loop(ts){ const dt = Math.min(.05, (ts-last)/1000 || 0); last = ts; step(dt); draw(ts/1000); requestAnimationFrame(loop); }
+
+/* ---------- the flow itself ---------- */
+let rows = 0;
+function reset(){
+  for (const n of nodes){ n.pulse = 0; n.busy = false; n.tint = null; n.open = 0; n.openT = 0; }
+  for (const e of edges) e.heat = 0;
+  for (const d of defs) N[d[0]].sub = d[3];
+  N.retro.sub = rows + (rows===1 ? ' row' : ' rows');
+  N.hub.depth = ''; N.hub.round = 1;
+  phaseNow = ''; phaseDone.clear(); fade = 1;
+}
+const gateSub = (txt, col) => { N.gate.sub = txt; N.gate.tint = col; };
+
+async function frame(){
+  phase('FRAME');
+  await send('user','hub','task','task');
+  N.hub.depth = 'standard'; N.hub.pulse = 1;
+  await sleep(.9);
+}
+async function build(sha){
+  phase('BUILD'); N.hub.busy = true;
+  await send('hub','checks','changed files','run');
+  N.checks.busy = true; await sleep(1.1); N.checks.busy = false; N.checks.tint = C.green;
+  await send('checks','hub','pass','pass', .9);
+  N.checks.tint = null;
+  await send('hub','pr','push','push');
+  N.pr.sub = 'head ' + sha; N.pr.tint = C.cyan;
+  await send('pr','ci','trigger','CI', .9);
+  N.ci.busy = true; N.ci.tint = null; N.hub.busy = false;
+  await sleep(.4);
+}
+async function review(round, arg, findings){
+  phase('REVIEW'); N.hub.round = round;
+  const r = N.revA; r.tint = null; r.sub = `fresh · read-only · r${round}`;
+  ripple(r, C.violet);                                   // a new reviewer with no memory
+  await send('hub','revA', arg, 'info');
+  r.busy = true; await sleep(1.7); r.busy = false;
+  if (!findings){ r.tint = C.green; await send('revA','hub','No findings','ok'); r.sub = 'report returned'; return; }
+  r.tint = C.red;
+  gateSub('closed · open blocker', C.red);
+  const a = send('revA','hub','blocker','blocker', 1.0); await sleep(.3);
+  const b = send('revA','hub','major','major', 1.0); await Promise.all([a,b]);
+  r.sub = 'report returned';
+}
+async function fix(oldSha, newSha){
+  phase('FIX'); N.hub.busy = true; await sleep(1.4);      // check each finding in the code, fix minimally
+  await send('hub','checks','affected only','run');
+  N.checks.busy = true; await sleep(1.0); N.checks.busy = false; N.checks.tint = C.green;
+  await send('checks','hub','pass','pass', .9); N.checks.tint = null;
+  await send('hub','pr','push · '+newSha,'info');
+  N.pr.sub = 'head ' + newSha;
+  N.ci.busy = true; N.ci.tint = null; ripple(N.ci, C.cyan);   // new head, CI restarts
+  N.hub.busy = false; await sleep(.5);
+  N.revA.tint = null;
+}
+async function merge(sha, hadFindings){
+  phase('MERGE');
+  if (hadFindings){ await send('hub','pr','findings comment','info'); }
+  gateSub('closed · waiting on CI', C.amber);
+  await send('hub','gate', 'PR · ' + sha, 'info');
+  N.gate.busy = true; await sleep(1.3);
+  N.ci.busy = false; N.ci.tint = C.green;
+  await send('ci','gate','checks pass','ok', .9);
+  N.gate.busy = false; N.gate.openT = 1; gateSub('open · exact head', C.green);
+  await sleep(.7);
+  await send('gate','base','merge ' + sha,'ok', 1.0);
+  N.base.tint = C.green; N.base.sub = 'at ' + sha; ripple(N.base, C.green);
+  await sleep(.6);
+  phase('FINISH');
+  rows++; N.retro.sub = rows + (rows===1 ? ' row' : ' rows');
+  await send('hub','retro','retro row','row');
+  await send('hub','user','report','task');
+  await sleep(.6);
+}
+
+const SCENARIOS = [   // delete or add entries here to change what the loop shows
+  { name:'STANDARD · CLEAN', async run(){
+      const s = hex();
+      await frame(); await build(s);
+      await review(1, `PR · ${s}`, false);
+      await merge(s, false);
+  }},
+  { name:'STANDARD · BLOCKER → FIX → ROUND 2', async run(){
+      const s1 = hex(), s2 = hex();
+      await frame(); await build(s1);
+      await review(1, `PR · ${s1}`, true);
+      await fix(s1, s2);
+      await review(2, `diff ${s1.slice(0,4)}..${s2.slice(0,4)}`, false);
+      await merge(s2, true);
+  }},
+];
+
+(async function main(){
+  for (;;) for (const s of SCENARIOS){
+    reset(); scenarioName = s.name;
+    await s.run(); await sleep(2.4);
+  }
+})();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
