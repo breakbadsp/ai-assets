@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare the cost of LoomFlow and KaizenFlow runs from Claude Code transcripts.
+"""Measure the cost of KaizenFlow runs from Claude Code transcripts.
 
 Usage: python3 scripts/flow-cost.py [--since YYYY-MM-DD]
 
@@ -20,13 +20,13 @@ GAP_CAP_SECONDS = 900
 
 
 def read_transcript(path):
-    """Return usage per API message, event times, and the slash commands used."""
-    usage, times, commands = {}, [], set()
+    """Return usage per API message, event times, and whether KaizenFlow was invoked."""
+    usage, times = {}, []
+    invoked = False
     with open(path, errors="replace") as lines:
         for line in lines:
-            for flow in ("kaizenflow", "loomflow"):
-                if f"<command-name>/{flow}" in line:
-                    commands.add(flow)
+            if "<command-name>/kaizenflow" in line:
+                invoked = True
             try:
                 event = json.loads(line)
             except ValueError:
@@ -36,7 +36,7 @@ def read_transcript(path):
             message = event.get("message")
             if event.get("type") == "assistant" and isinstance(message, dict) and message.get("usage"):
                 usage[message.get("id") or event.get("uuid")] = message["usage"]
-    return list(usage.values()), times, commands
+    return list(usage.values()), times, invoked
 
 
 def weighted(usage):
@@ -64,25 +64,20 @@ def role_of(agent_path):
 
 
 def measure(session_path):
-    """Return (flow, row) for one session, or None if it ran no flow."""
-    main_usage, times, commands = read_transcript(session_path)
+    """Return one row for a KaizenFlow session, or None."""
+    main_usage, times, invoked = read_transcript(session_path)
     usage = list(main_usage)
     folder = session_path[: -len(".jsonl")] + "/subagents"
-    roles = set()
+    reviewed = False
     for agent in glob.glob(folder + "/**/agent-*.jsonl", recursive=True):
         agent_usage, agent_times, _ = read_transcript(agent)
         usage += agent_usage
         times += agent_times
-        roles.add(role_of(agent))
-    if "kaizenflow" in commands or "kaizen-reviewer" in roles:
-        flow = "kaizenflow"
-    elif "loomflow" in commands or any(role.startswith("pr-") for role in roles):
-        flow = "loomflow"
-    else:
+        if role_of(agent) == "kaizen-reviewer":
+            reviewed = True
+    if not times or not (invoked or reviewed):
         return None
-    if not times:
-        return None
-    return flow, {
+    return {
         "start": min(times)[:10],
         "weighted": weighted(usage),
         "main_share": weighted(main_usage) / max(1, weighted(usage)),
@@ -95,18 +90,18 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--since", default="0000-00-00")
     since = parser.parse_args().since
-    runs = {}
+    rows = []
     for path in glob.glob(ROOT + "/*/*.jsonl"):
         result = measure(path)
-        if result and result[1]["start"] >= since:
-            runs.setdefault(result[0], []).append(result[1])
+        if result and result["start"] >= since:
+            rows.append(result)
     print("flow        runs  weighted M  active min  main calls  main share  (medians)")
-    for flow, rows in sorted(runs.items()):
+    if rows:
         def median(key):
             return statistics.median(row[key] for row in rows)
 
         print(
-            f"{flow:11} {len(rows):4}  {median('weighted') / 1e6:10.2f}  {median('minutes'):10.0f}"
+            f"{'kaizenflow':11} {len(rows):4}  {median('weighted') / 1e6:10.2f}  {median('minutes'):10.0f}"
             f"  {median('main_calls'):10.0f}  {median('main_share'):10.0%}"
         )
 

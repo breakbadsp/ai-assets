@@ -1,6 +1,6 @@
 # KaizenFlow
 
-KaizenFlow is the light version of [LoomFlow](loomflow.md). The operating instructions are in [the command](../claude/commands/kaizenflow.md) and [the reviewer](../claude/agents/kaizen-reviewer.md). This file records why the flow has this shape and how to verify it.
+The KaizenFlow operating instructions are in [the command](../claude/commands/kaizenflow.md) and [the reviewer](../claude/agents/kaizen-reviewer.md). This file records the reasons for the workflow and how to verify it.
 
 ![Detailed KaizenFlow workflow](kaizenflow.svg)
 
@@ -31,17 +31,40 @@ Median run: 2.10M weighted tokens, 58 active minutes, 55 orchestrator calls.
 - The analyzer starts cold and waits on full checks. The analyzer and gate spent over 5 hours in `make check`. The context that wrote the code now fixes the findings, runs only the affected tests, and leaves full proof to CI.
 - The gate is mechanical, so it is a script. It stays a script and not one line, because `gh pr checks --watch --fail-fast` exits 0 for cancelled checks, and `master` in Triangulator has no branch protection.
 
-## What stays from LoomFlow
+## Proof over review
 
-No merge with an open `blocker` or `major` or a failed check, exact head merge, at most two rounds, a fresh read-only reviewer, and a retro row on every exit.
+Review costs a full read for each round, and finds only what a reader notices. A test, a verification journey, or a formal check costs one run, and catches the same defect on every later change. So KaizenFlow moves effort to the start and the proof:
 
-## What KaizenFlow gives up
+- Specify first. Each acceptance criterion names its proof. At `deep`, each invariant names its formal check.
+- TLA+ by judgement, not by default. Writing a model is the cost, and each rerun is cheap, so a model pays when the bug can hide in an order of events and the area will change again. Then it guards against regressions on every later change. Other risks get a cheaper check: a property test, a code verifier, or a table test. The PR body records the choice and the reason in one line, so the retro can show when the choice was wrong.
+- Tests come before code and must fail without the change (`tdd`).
+- Verification skills are code. A PR that changes a covered feature or verified code updates the skill in the same PR. Create one in a separate PR when a repository will get more changes of that kind.
+- `deep` uses one reviewer and formal checks, not two reviewers. In the baseline, reviewer B alone found something in only 2 of 48 paired rounds. A second reviewer remains for a risk that no proof covers.
+- The reviewer reads the spec and the proof first. A gap in the proof is a `major`.
+
+Per-PR updates keep the skills in step with the changes that KaizenFlow makes. Changes made outside KaizenFlow still cause drift. Run `maintain-verification-skill` and `maintain-formal-verification-skill` after large merges, or on a schedule.
+
+## TODO
+
+Gaps from the review of 2026-11-23. Each one needs a script or a rule before it can replace judgement.
+
+- Link models to code in CI: map each model to the globs of its covered code in `.kaizen-checks`, so a code change reruns the model.
+- Keep the spec in the repository: invariants, models, and property tests next to the code, with the PR body linking to them. Add a check that fails when an invariant has no linked test or model.
+- Design for proof: one state type and a pure transition function, idempotent operations, and injected time. Consider `principle-make-operations-idempotent` and `principle-separate-before-serializing-shared-state` from pstack.
+- Mutation testing at `deep`: run a mutation tool on the changed lines through `.kaizen-checks`. A surviving mutant is a finding.
+- Measure the formal choice: add `formal` and `escaped` columns to the retro TSV with a header migration, and report them in `scripts/flow-cost.py`.
+- At `standard`, name in one line the existing invariants that the change touches.
+- Move the detail of "Choose the formal check" into `create-formal-verification-skill`, and keep a short rule in the command.
+
+## Trade-offs
 
 - Audit comments from each role. One comment remains, and only when the review found something.
 - A separate analyzer. The author now judges findings on its own code, so a wrong rebuttal is more likely. A rebutted `blocker` therefore triggers round 2.
 - A second opinion on most changes. By the baseline, about 2 of 13 rounds with findings would lose those findings.
+- A second reviewer at `deep`. A formal check replaces it. The check covers only its stated model and bounds, so a risk outside them still gets a second reviewer.
+- More time before the first push. Specs, failing tests, and models cost time that review used to take. The trial must show fewer weighted tokens and no rise in defects after merge.
 - `quick` has no independent review. The 5 Small rows in the retro were all clean, but that sample is small.
-- Major series, design rounds, and two design tracks. Use LoomFlow for that work.
+- KaizenFlow has no workflow for a series of PRs or separate design rounds.
 
 ## Selective checks
 
@@ -57,8 +80,8 @@ Use `--list` to see the selection without running it, and `--base REF` to change
 
 The expected gain is a target, not a result: at least 40% fewer weighted tokens per median run, with no rise in defects after merge.
 
-1. Run KaizenFlow on about 10 real changes. Include at least 2 at `deep`.
-2. Run `python3 scripts/flow-cost.py --since <trial start>` and compare the two rows.
+1. Run KaizenFlow on about 10 real changes. Include at least 2 at `deep`, with one formal check.
+2. Run `python3 scripts/flow-cost.py --since <trial start>` and compare the median with the baseline above.
 3. Read the `lesson` column. Apply one subtraction.
 
 To test `kaizen-checks.sh`, change one file per rule in a scratch clone and run `$HOME/ai/scripts/kaizen-checks.sh --base main --list`. Check a mapped file, a skipped file, a shared file, and an unmapped file.

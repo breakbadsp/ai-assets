@@ -18,5 +18,6 @@ done
 test "$count" -gt 0
 # A second run must succeed and keep the same links.
 "$tmp/ai/install.sh" >/dev/null
-test "$(readlink -- "$HOME/.claude/commands/loomflow.md")" = "$tmp/ai/claude/commands/loomflow.md"
+test "$(readlink -- "$HOME/.claude/commands/kaizenflow.md")" = "$tmp/ai/claude/commands/kaizenflow.md"
+test "$(readlink -- "$HOME/.claude/agents/kaizen-reviewer.md")" = "$tmp/ai/claude/agents/kaizen-reviewer.md"
 printf 'Installer check passed: %s Claude links.\n' "$count"

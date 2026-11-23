@@ -69,4 +69,9 @@ do the work.
 - `principle-redesign-from-first-principles`: a new requirement meets an existing design.
 - `blast-radius`: finding what a change could break elsewhere before it ships.
 - `create-verification-skill`: building a project-local end-to-end verification skill.
+- `maintain-verification-skill`: a verification skill or its feature map may no longer match the app.
+- `create-formal-verification-skill`: concurrency, retries, state machines, parsers, or unsafe code need more than tests.
+- `maintain-formal-verification-skill`: code under a formal check changed without a recheck.
+- `statechart`: checking a TLA+ model of states and showing a bug as a path.
+- `tdd`: a bug or a requirement with a cheap test target; write the failing test first.
 - `unslop`: cutting AI-style wording from prose you write.
