@@ -66,6 +66,10 @@ Gaps from the review of 2026-11-23. Each one needs a script or a rule before it 
 - `quick` has no independent review. The 5 Small rows in the retro were all clean, but that sample is small.
 - KaizenFlow has no workflow for a series of PRs or separate design rounds.
 
+## Structure checks
+
+Deep modules with narrow interfaces make proof cheaper: a type that keeps its fields owns its invariant, so one check at one boundary guards it. KaizenFlow keeps this as a nudge and a reviewer question, not a rule, because the tools are language-specific and new. When a repository adopts a structure linter such as [`deslop-please`](https://github.com/deterministic-machines/deslop-please), start from a baseline allow file and let it only shrink. A new error then fails `.kaizen-checks`.
+
 ## Selective checks
 
 `$HOME/ai/scripts/kaizen-checks.sh` is the one place that decides which checks a change needs. The builder, the fixer, and CI all call it, so the local result and the CI result agree. It reads `.kaizen-checks` in the repository root. Each check lists the globs that trigger it, and the dependents of its inputs belong in those globs: that is the blast radius.

@@ -18,6 +18,7 @@ Read `gh pr view <PR> --json title,body` and `gh pr diff <PR>`. Read the spec an
 - Does the proof plan decide create, update, keep, or remove for each check that the change touches? Did the PR remove a check that still guards a live rule?
 - What one fact makes this change safe? Does it hold? Did the proof run the changed code?
 - Who calls or reads what changed (`git grep`)? Do they still get what they expect?
+- Does the change spread a type's fields or an invariant across modules, or add a module cycle? Did a structure linter's allow file grow, or did a move only hide an error?
 - What happens on failure, empty or maximum input, restart, and concurrent access?
 - Did a removal leave dead code or stale tests behind?
 - Does it break a rule in the repository `AGENTS.md`? For C++, use the `cpp-checklist` skill.

@@ -22,6 +22,7 @@ Use the cheapest technique that covers the risk in all cases that matter. Start 
 | 14 | Interactive proof | A full proof of a deep property. | Lean, Rocq, Isabelle | Very high |
 | 15 | Trace validation | The real code behaves like the verified model. | Model-generated tests, TLA+ trace validation | Medium |
 | 16 | Differential or equivalence test | A new version gives the same output as the old one or a reference. | Same inputs into two implementations, CBMC equivalence | Low to medium |
+| 17 | Structure lint | No module cycle; each type keeps its fields, so one boundary owns each invariant. | `deslop-please` (Rust), `import-linter` (Python), `dependency-cruiser` (TypeScript), include-graph checks (C++) | Low |
 
 ## Technique by change or component
 
@@ -37,6 +38,7 @@ Use the cheapest technique that covers the risk in all cases that matter. Start 
 | Crash and restart, migration, storage format | Data loss, broken upgrade | 10 for recovery steps, 16 old against new | 6 on the format |
 | Hot path, low-latency C++ | Undefined behavior, overflow, an optimization breaks an invariant | 3, 2, 16 against a simple reference | 11 on core functions |
 | Refactor with no behavior change | Silent behavior change | 16 | 7 |
+| New module or type, or a change to module boundaries | Leaked fields, cycles, an invariant with no single owner | 17 | 3 at the owning boundary |
 | Auth and permissions | Access that must be denied | 4 over roles and actions | 13 for the policy |
 | Unsafe or low-level code | Memory safety | 6 with ASan | 11, 13 |
 | Algorithm with a deep correctness claim | Wrong in rare cases | 5 | 10 or 14 |
