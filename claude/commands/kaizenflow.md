@@ -17,7 +17,7 @@ Ask the user only what blocks the work, in one message. Write other assumptions 
 | --- | --- | --- | --- |
 | `quick` | A mistake is visible and cheap to undo: docs, comments, renames, mechanical edits. | The existing checks. | Read your own diff once. Start no agent. |
 | `standard` | The default. | A test for each criterion. Drive each changed user feature with the verification skill. | One fresh reviewer. |
-| `deep` | A mistake is costly or hidden: concurrency, stored or wire data, auth, secrets, migrations, state machines, parsers, or a design with an unknown. | `standard`, and the cheapest check that covers each invariant in all cases. See "Choose the formal check". | One fresh reviewer. Add a second, with a different model, only for a risk that no proof covers. |
+| `deep` | A mistake is costly or hidden: concurrency, stored or wire data, auth, secrets, migrations, state machines, parsers, or a design with an unknown. | `standard`, and the cheapest check that covers each invariant in all cases. See "Plan the proof". | One fresh reviewer. Add a second, with a different model, only for a risk that no proof covers. |
 
 Judge by what a mistake costs, not by line count or path. A depth that the user names is the minimum. In doubt, go one level deeper.
 
@@ -26,19 +26,16 @@ Before code, write the spec at the top of the PR body:
 - Behavior: what changes, in the user's words.
 - Acceptance criteria: each one observable, and each one names its proof (test, verification journey, or formal check).
 - At `deep`, invariants: what must never happen, each in one sentence with its harm.
-- At `deep`, one line: `Formal: <TLA+ | property test | code verifier | exhaustive table test | none>, because <reason>`.
+- The proof plan. See "Plan the proof".
 
-### Choose the formal check
+### Plan the proof
 
-Decide once, here, before code. A model costs most when you write it, and little each time you run it again. So ask two questions: can the bug hide in an order of events, and will this area change again?
+Before code, write the proof plan in the PR body. Use the decision tables in `$HOME/ai/skills/create-formal-verification-skill/references/techniques.md`.
 
-- Code that an existing model or verifier covers: always run the check again and update it. This is the regression guard, and it is cheap.
-- Use TLA+ when the bug can hide in an order of events and the area will change again: concurrency, retries, timeouts, crash and restart, distributed or wire protocols, leases and locks, cache invalidation, or a lifecycle that more than one actor drives. Model before you build, and read the result with `statechart`.
-- Use a cheaper check when order is not the risk:
-  - A pure function, a parser, or a data transform: a property test with generated inputs, or a verifier on the code.
-  - A small state machine with one actor: a table test over every state and event pair.
-  - A one-off script, UI layout, docs, or configuration: no formal check.
-- In doubt, write the smallest model that can show the bug you fear: a few variables and the actions that race. Stop when it cannot fail on a broken variant, or when it grows past what the invariant needs.
+- For each test, property, model, verification journey, or verification skill that the change touches or needs, decide: create, update, keep, or remove. Give a one-line reason.
+- Pick the cheapest technique that covers the risk. Use TLA+ only when the order of events is the risk and the area will change again. Always rerun an existing model that covers the changed code.
+- Weigh each check's value against its cost: the defect it catches and what that defect costs, against write time, CI time, flakiness, and the edits it forces later. Remove a check that duplicates a stronger one, tests implementation details, or is flaky with no fix.
+- During the build, update the plan when the design changes. Remove checks that the change makes redundant.
 
 ## 2. Build
 
@@ -59,7 +56,7 @@ Decide once, here, before code. A model costs most when you write it, and little
   - A changed verified code path: run the formal check, then update the model, coverage, and sync commit in this PR.
   - No verification skill, and the repository will get more changes like this one: create it with `create-verification-skill` or, at `deep`, `create-formal-verification-skill`, in a separate PR first. Otherwise, write the gap in the PR body.
 - Every proof must run the changed code and must be able to fail. Show a formal check fail once on a broken variant.
-- PR body, after the spec: a proof table (criterion or invariant, proof, result), and the fact that makes the change safe.
+- PR body, after the spec: the final proof plan, a proof table (criterion or invariant, proof, result), and the fact that makes the change safe.
 
 ## 3. Review
 

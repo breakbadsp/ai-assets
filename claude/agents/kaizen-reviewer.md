@@ -15,6 +15,7 @@ Read `gh pr view <PR> --json title,body` and `gh pr diff <PR>`. Read the spec an
 - Is each acceptance criterion and invariant observable, and does each have a proof? Does each proof run the changed code, and could it fail? A test that passes without the change proves nothing.
 - Does the diff do what the spec says? Did a test, property, model, or journey get weaker?
 - Does a verification skill or formal check in `.claude/skills/` cover the changed code? Did the PR update it?
+- Does the proof plan decide create, update, keep, or remove for each check that the change touches? Did the PR remove a check that still guards a live rule?
 - What one fact makes this change safe? Does it hold? Did the proof run the changed code?
 - Who calls or reads what changed (`git grep`)? Do they still get what they expect?
 - What happens on failure, empty or maximum input, restart, and concurrent access?
