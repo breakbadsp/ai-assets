@@ -114,6 +114,7 @@ Ask the question. Read the skill in `$HOME/ai/skills/` only when the question do
 - Does a verification skill or formal check describe the code that I changed? Is it still true? (`maintain-verification-skill`, `maintain-formal-verification-skill`)
 - Is this the root cause or a symptom? (`principle-fix-root-causes`)
 - Who else reads or calls this? (`blast-radius`)
+- Does each module hide more than it shows? Does each type keep its fields, and so own its invariant? Is there a module cycle? A structure linter can check this, such as `deslop-please` for Rust. Use one when it is worth its cost.
 - Does the test fail without the change? Does it test behavior? (`principle-test-behavior-not-implementation`)
 - Did the proof run the changed code? (`principle-prove-it-works`)
 - Do two failed fixes share one premise? (`principle-attack-the-premise`)
