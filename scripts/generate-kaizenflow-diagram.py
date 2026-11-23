@@ -19,27 +19,30 @@ COLS = (82, 452, 822)
 
 # Cards in each band describe a stage. They are not separate agent handoffs.
 STAGES = [
-    ('FRAME', 'Choose the depth by the cost of a mistake.', [
+    ('SPECIFY', 'Spend effort on the spec and the proof, not on review.', [
         ('entry', 'TASK OR EXISTING PR', 'Start with the goal', [
             '/kaizenflow <task>',
             'Or: /kaizenflow <PR> [quick|standard|deep]',
-            'Task: build, then review. Existing PR: go to Review after framing.',
+            'Task: build, then review. Existing PR: go to Review after the spec check.',
         ]),
-        ('frame', 'ONE MESSAGE', 'Close blocking gaps', [
+        ('frame', 'SPEC BEFORE CODE', 'Write the spec', [
             'Ask only what blocks the work. Put other assumptions in the PR body.',
-            'State the depth and its reason in one line.',
+            'Behavior in user words. Each acceptance criterion names its proof.',
+            'deep: invariants with their harm, and one line: Formal: <check>, because <reason>.',
         ]),
-        ('depth', 'JUDGEMENT', 'Set the review depth', [
-            'quick: a mistake is visible and cheap to undo.',
-            'standard: the default.',
-            'deep: a mistake is costly or hidden.',
+        ('depth', 'JUDGEMENT', 'Set the depth and proof', [
+            'quick: a cheap, visible mistake. Proof: existing checks.',
+            'standard: the default. Proof: a test per criterion and a verification journey.',
+            'deep: a costly or hidden mistake. Proof: standard and the cheapest all-cases check per invariant.',
+            'TLA+ only when order of events is the risk and the area will change again. Always rerun an existing model.',
             'User depth is the minimum. In doubt, go one level deeper.',
         ]),
     ]),
     ('BUILD', 'The same context builds and fixes.', [
         ('prepare', 'BRANCH AND CAUSE', 'Prepare the change', [
             'Work on a branch. Use a worktree if the primary checkout is dirty or in use.',
-            'Bug: reproduce it and find the cause first.',
+            'Bug: reproduce it as a failing test, then find the cause (tdd).',
+            'Write tests from the criteria first. See each fail for the intended reason.',
             'deep: write “x over y, and why” in the PR body. Measure the deciding fact if cheap.',
         ]),
         ('author', 'THIS SESSION', 'Build the change', [
@@ -47,10 +50,12 @@ STAGES = [
             'Builder inputs: goal, worktree, branch. Return: PR URL, head SHA, proof.',
             'Keep the same builder for fixes.',
         ]),
-        ('proof', 'PROOF AND PR', 'Check, then push', [
-            'Run targeted tests during the work.',
+        ('proof', 'PROOF AND PR', 'Prove, then push', [
+            'Drive changed features with verify-<app>. Run formal checks on verified code.',
+            'Update the feature map, model, and sync commit in the same PR.',
+            'No skill and more such changes ahead: create one in a separate PR first.',
             'Run $HOME/ai/scripts/kaizen-checks.sh before the first push. CI runs it too.',
-            'PR body: goal, acceptance criteria, safety fact, and its proof.',
+            'PR body: spec, proof table, and the safety fact.',
         ]),
     ]),
     ('REVIEW', 'Choose one route. Bind every independent report to the current head SHA.', [
@@ -62,18 +67,19 @@ STAGES = [
         ('standard', 'STANDARD · ONE REVIEWER', 'Get a fresh review', [
             'Start kaizen-reviewer with PR number, worktree path, and head SHA.',
             'Give no opinion about the change. Prefer a model that did not write the code.',
+            'The reviewer checks the spec and proof first. A proof gap is a major.',
             'A report for another head is void.',
         ]),
-        ('deep', 'DEEP · TWO REVIEWERS', 'Review in parallel', [
-            'Two fresh reviewers use different models and the same head SHA.',
-            'Use for concurrency, stored or wire data, auth, secrets, migrations, or an unknown design.',
-            'Apply the same report rules.',
+        ('deep', 'DEEP · PROOF FIRST', 'One reviewer and formal checks', [
+            'One fresh reviewer checks the code and the formal checks.',
+            'Add a second reviewer, with a different model, only for a risk that no proof covers.',
+            'Use for concurrency, stored or wire data, auth, secrets, migrations, state machines, or parsers.',
         ]),
     ]),
     ('FIX', 'Check findings in the code. Keep the author context.', [
         ('fix', 'AUTHOR OR SAME BUILDER', 'Fix or rebut', [
             'Check each blocker and major. Fix minimally, or rebut with evidence.',
-            'When cheap, add a test that fails without the fix. Rerun kaizen-checks.sh.',
+            'First add a test, journey, or property that fails without the fix. Rerun kaizen-checks.sh.',
             'For an existing PR, this session fixes.',
         ]),
         ('failed', 'FAILED CHECK = BLOCKER', 'Read the failed log', [
@@ -126,14 +132,17 @@ STAGES = [
 
 SIDEBAR = [
     ('HARD LIMITS', 'Stop and report', [
+        'Use the ownership question at every stage. Include it in every delegated task.',
+        'Never weaken a test, property, model, or journey to make it pass.',
         'Never merge with an open blocker or major, an open user-raised critical issue, or a failed or cancelled check.',
         'At most two review rounds. At most one fix pass for failed checks.',
         'If an issue remains after the allowed limit, stop for manual handling.',
         'Stop on an ambiguous result.',
-        'Reviewers never edit. No step starts /kaizenflow or /loomflow.',
+        'Reviewers never edit. No stage starts another /kaizenflow run.',
     ]),
     ('REVIEWER CONTRACT', 'Read only; confirm defects', [
-        'Read PR title, body, diff, and only the surrounding code needed.',
+        'Read the spec and proof table first, then tests, then code. Read only the code needed.',
+        'Check that each criterion and invariant has a proof that runs the changed code and can fail.',
         'Check claims and acceptance proof, the safety fact, callers, failures, empty and maximum inputs, restart, and concurrency.',
         'Check tests, dead code after removals, and repository rules. For C++, use cpp-checklist.',
         'Disprove each suspected defect first. Report only a confirmed input and wrong result.',
@@ -142,7 +151,7 @@ SIDEBAR = [
     ]),
     ('SEVERITY', 'Only blockers and majors', [
         'blocker: wrong behavior, crash, data loss, security issue, build break, or broken repository rule.',
-        'major: likely defect, or changed behavior with no test.',
+        'major: likely defect, changed behavior with no proof, a proof that cannot fail, or a weakened check.',
         'Skip style, naming, speculation, and untouched code.',
     ]),
     ('CONTEXT BUDGET', 'Reduce calls and handoffs', [
@@ -151,10 +160,6 @@ SIDEBAR = [
         'Do not repeat reports. Pass them on or act on them.',
         'Use skill questions as nudges. Read the skill only when the question does not settle the matter.',
         'Only Hard limits are flow rules. Other steps are defaults; state a reason in one line to change one. Repository rules still apply.',
-    ]),
-    ('SCOPE', 'Use LoomFlow for larger flows', [
-        'KaizenFlow has no Major series, design rounds, or two design tracks.',
-        'Operating sources: command, reviewer, and merge script. docs/kaizenflow.md records rationale and verification.',
     ]),
 ]
 
@@ -226,8 +231,8 @@ def generate():
     text(52, height - 64, 'Regenerate: python3 scripts/generate-kaizenflow-diagram.py · Verify freshness: add --check', 'subtitle')
     text(52, height - 38, 'Sources: claude/commands/kaizenflow.md · claude/agents/kaizen-reviewer.md · scripts/kaizen-merge.sh', 'subtitle')
     svg = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WIDTH} {height}" role="img" aria-labelledby="title desc">
-<title id="title">KaizenFlow — detailed build and review workflow</title>
-<desc id="desc">Six stages: Frame, Build, Review, Fix, Merge, Finish. Three review depths, conditional second review, exact-head merge, stop conditions, reviewer contract, and retrospective. Cards within a stage describe work or alternatives, not separate agent handoffs. Existing PRs skip Build. Every stop reaches Finish.</desc>
+<title id="title">KaizenFlow — detailed specify, prove, and review workflow</title>
+<desc id="desc">Six stages: Specify, Build, Review, Fix, Merge, Finish. Three depths with a proof level each, conditional second review, exact-head merge, stop conditions, reviewer contract, and retrospective. Cards within a stage describe work or alternatives, not separate agent handoffs. Existing PRs skip Build. Every stop reaches Finish.</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/></marker></defs>
 <style>
 :root {{ --bg:var(--background,#ffffff); --fg:var(--foreground,#172033); --sub:var(--muted-foreground,#526174); --box:var(--card,#f6f8fc); --line:var(--border,#cbd5e1); --flow:var(--primary,#285cce); --fix:var(--warning,#9b6500) }}
@@ -243,7 +248,7 @@ def generate():
 </style>
 <rect width="{WIDTH}" height="{height}" class="canvas"/>
 <text x="52" y="53" class="heading">KaizenFlow</text>
-<text x="52" y="84" class="subtitle">One context builds and fixes · fresh review by depth · one script merges · a lesson on every exit</text>
+<text x="52" y="84" class="subtitle">Spec and proof first · one context builds and fixes · fresh review by depth · one script merges · a lesson on every exit</text>
 {''.join(body)}
 </svg>
 '''

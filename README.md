@@ -8,8 +8,7 @@ Shared instructions and language conventions for AI coding tools.
 - `skills/`: shared PStack skills for simpler code, automation, and verification.
 - `skills/cpp-*`: the C++ coding standards, one skill per topic. `AGENTS.md`
   routes each C++ task to its skill.
-- `docs/loomflow.md`, `claude/commands/loomflow.md`, and `claude/agents/`: the shared LoomFlow workflow and roles. Projects may use small command and role files that read these shared files.
-- `docs/kaizenflow.md`, `claude/commands/kaizenflow.md`, and `claude/agents/kaizen-reviewer.md`: KaizenFlow, the light version of LoomFlow. `scripts/flow-cost.py` compares the cost of the two flows.
+- `docs/kaizenflow.md`, `claude/commands/kaizenflow.md`, and `claude/agents/kaizen-reviewer.md` contain the KaizenFlow workflow and reviewer prompts. `scripts/flow-cost.py` measures the cost of KaizenFlow runs.
 - `install.sh`: links these assets into the locations agents discover.
 
 ## Restore or install
@@ -47,7 +46,16 @@ PStack commit `99b609a72323b70204eab407c622f436e858e112`. Each skill records its
 source and includes the upstream MIT license. The adaptations remove external
 skill and fixed model requirements. Visual parity is a standalone skill.
 
-To copy these three skills into a project, run:
+`create-verification-skill`, `maintain-verification-skill`,
+`create-formal-verification-skill`, `maintain-formal-verification-skill`,
+`statechart`, and `tdd` come from
+[open-pstack](https://github.com/ericlitman/open-pstack/tree/faf5121/plugins/pstack/skills)
+commit `faf5121`, which tracks Poteto's pstack for Claude Code. The local
+changes add `disable-model-invocation` and remove links to `poteto-mode`, which
+this repository does not include. The `statechart` scripts download TLC 1.7.4
+(pinned by checksum) and Java through `mise` on the first run.
+
+To copy the three adapted skills into a project, run:
 
 ```sh
 python3 scripts/sync-pstack-skills.py /path/to/project
