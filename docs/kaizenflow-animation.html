@@ -30,7 +30,7 @@ const defs = [
   ['gate',  'kaizen-merge.sh',  'merge.sh', 'closed · exact head',   'diamond',  70, C.amber],
   ['base',  'base branch',      'base',     '',                      'doc',     110, C.green],
   ['retro', 'retro .tsv',       'retro',    '0 rows',                'doc',     150, C.gray],
-  ['revB',  'reviewer B',       'rev B',    'deep only',             'circle',  190, C.violet, true],
+  ['revB',  'reviewer B',       'rev B',    'deep, no proof',             'circle',  190, C.violet, true],
   ['revA',  'kaizen-reviewer',  'reviewer', 'fresh · read-only',     'circle',  230, C.violet],
 ];
 const N = {hub:{id:'hub', x:0, y:0, pulse:0, busy:false, tint:null, depth:'', round:1}};
@@ -165,7 +165,7 @@ function drawHUD(){
   const f = small?10:12, x0 = small?14:24;
   text('KAIZENFLOW', x0, 24, small?12:14, C.white, 'left', true);
   let x = x0; cx.font = `${f}px ${FONT}`;
-  for (const p of ['FRAME','BUILD','REVIEW','FIX','MERGE','FINISH']){
+  for (const p of ['SPECIFY','BUILD','REVIEW','FIX','MERGE','FINISH']){
     const w = cx.measureText(p).width, on = p === phaseNow, done = phaseDone.has(p);
     text(p, x, 48, f, on ? C.cyan : done ? C.gray : '#3a4655', 'left', on);
     if (on){ cx.fillStyle = C.cyan; cx.fillRect(x, 58, w, 2); }
@@ -215,7 +215,7 @@ function reset(){
 const gateSub = (txt, col) => { N.gate.sub = txt; N.gate.tint = col; };
 
 async function frame(){
-  phase('FRAME');
+  phase('SPECIFY');
   await send('user','hub','task','task');
   N.hub.depth = 'standard'; N.hub.pulse = 1;
   await sleep(.9);
