@@ -51,6 +51,7 @@ Before code, write the proof plan in the PR body. Use the decision tables in `$H
 - At `deep`, write "x over y, and why" in the PR body first. If one fact decides the design and a cheap throwaway measurement exists, measure it.
 - Build in this session. Delegate to one fresh builder only when the work will clearly fill this context. Give it the goal, worktree, and branch. Ask it to return the PR URL, head SHA, and proof in a few lines. Keep the same builder for fixes.
 - Verify with `$HOME/ai/scripts/kaizen-checks.sh`. It maps the changed files and their blast radius to the checks in `.kaizen-checks`, and runs only those. Run it before the first push. CI runs the same script, so CI is the proof after that. If the repository has no `.kaizen-checks`, run its full check once before the first push.
+- Push once, when all code is written. Each push to an open PR starts a full CI run, and a run on unfinished code only slows the work. While you build, commit locally and run only the targeted tests. For a large change or a rewrite, push for backup only to a branch with no PR, and only when the repository CI does not run on branch pushes. Open the PR when the code is complete and `kaizen-checks.sh` passes.
 - Verification skills are part of the code. Find them in `.claude/skills/` (a `verify-<app>` skill with a feature map, and any skill that runs a model checker or prover).
   - A changed user feature: drive it with the verification skill and keep the evidence. Update its feature file in this PR.
   - A changed verified code path: run the formal check, then update the model, coverage, and sync commit in this PR.
@@ -68,7 +69,7 @@ The reviewer checks the spec and the proof first: a missing criterion, an invari
 
 Fix in the context that wrote the code: this session, or the same builder. For a PR that you did not build, this session fixes.
 
-- Check each `blocker` and `major` in the code. Fix it minimally, or rebut it with evidence. First add a test, journey, or property that fails without the fix. Skip it only when no cheap target exists, and say why. Run `$HOME/ai/scripts/kaizen-checks.sh` again: it selects the affected checks.
+- Check each `blocker` and `major` in the code. Fix it minimally, or rebut it with evidence. First add a test, journey, or property that fails without the fix. Skip it only when no cheap target exists, and say why. Fix all findings of the round first, then run `$HOME/ai/scripts/kaizen-checks.sh` once and push once.
 - A failed check is a `blocker`: read its log and fix the cause. If the log shows that this PR did not cause it, rerun that job once.
 - Run round 2 only when a fix changes behavior beyond the faulty lines, touches callers, or you rebutted a `blocker`. Use one reviewer. Pass the old head SHA, the findings, and the outcomes. State the decision in one line.
 
