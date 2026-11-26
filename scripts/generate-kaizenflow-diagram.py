@@ -125,7 +125,10 @@ STAGES = [
             'State root: ${XDG_STATE_HOME:-$HOME/.local/state}',
             'Ambiguous result: stop and report.',
         ]),
-        ('report', 'AT MOST FIVE LINES', 'Give the final report', [
+        ('report', 'CLEANUP AND REPORT', 'Clean up and report', [
+            'Remove temporary files, clean worktrees, and merged local branches from this run when they are no longer needed.',
+            'Preserve user files and work in progress. Use Git removal commands without force.',
+            'Report cleanup blockers. The final report has at most five lines.',
             'PR URL; depth and reason; rounds; findings and outcomes; merge SHA or open issues.',
             'Name any commits that had no review.',
         ]),

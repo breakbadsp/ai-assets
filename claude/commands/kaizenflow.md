@@ -126,4 +126,6 @@ Ask the question. Read the skill in `$HOME/ai/skills/` only when the question do
 
 On every exit, also a stop, append one row to `${XDG_STATE_HOME:-$HOME/.local/state}/kaizenflow/<owner>-<repo>.tsv`. A new file starts with the header row. Tab-separated columns: `date`, `task_or_pr`, `depth`, `reviewers`, `rounds`, `blockers`, `majors`, `outcome`, `lesson`. `lesson`: one step or rule to remove or change next time, or `-`.
 
+As the last action before the final report, remove temporary files from this run that you no longer need. Remove clean worktrees created for this run when they are out of use. Delete local branches created for this run only after you verify that they merged into the target branch. Preserve user files, uncommitted changes, and anything needed to resume the work. Use Git removal commands without force. Skip items already removed and report anything that blocks cleanup.
+
 Final report, at most five lines: PR URL, depth and reason, proofs that ran, rounds, findings and outcomes, and the merge SHA or the open issues. Name any commits that had no review.
