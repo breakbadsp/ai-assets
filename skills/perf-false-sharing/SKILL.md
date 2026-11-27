@@ -144,5 +144,5 @@ Record the same workload again, with the same commands.
 - The line is no longer in the Shared Data Cache Line Table, or its HITM
   count is much smaller.
 - The HITM counter from step 2 is lower.
-- The user-visible metric is better, measured as in `perf-profiling`
-  section 6.
+- The user-visible metric is better, measured as in `perf-profiling`,
+  section 9.

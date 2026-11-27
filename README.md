@@ -8,8 +8,9 @@ Shared instructions and language conventions for AI coding tools.
 - `skills/`: shared PStack skills for simpler code, automation, and verification.
 - `skills/cpp-*`: the C++ coding standards, one skill per topic. `AGENTS.md`
   routes each C++ task to its skill.
-- `skills/perf-*`: performance profiling on Linux and how to read the reports,
-  one skill per topic.
+- `skills/perf-*`: the performance improvement plan (`perf-optimization`) and
+  one skill for each step: tests, profiling, removing work, memory, I/O, CPU,
+  data layout, and false sharing.
 - `docs/kaizenflow.md`, `claude/commands/kaizenflow.md`, and `claude/agents/kaizen-reviewer.md` contain the KaizenFlow workflow and reviewer prompts. `scripts/flow-cost.py` measures the cost of KaizenFlow runs.
 - `install.sh`: links these assets into the locations agents discover.
 
