@@ -47,11 +47,18 @@ skill. The C++ rules are one skill per topic, in
 
 ## Performance
 
-Before you profile, read a profile, or claim a performance result, read the
-`perf-profiling` skill. The performance skills are one skill per topic, in
-`$HOME/ai/skills/perf-*/SKILL.md`:
+At the start of performance work, read the `perf-optimization` skill. It
+gives the order of the steps and sends each step to one skill, in
+`$HOME/ai/skills/perf-*/SKILL.md`. Read only the skill for the step in hand:
 
-- `perf-profiling`: build, workload, tool choice, `perf stat` and `perf record` reports, A/B proof.
+- `perf-optimization`: the plan: goal, steps, gates, bottleneck report.
+- `perf-benchmarks`: tests that detect and measure performance problems.
+- `perf-profiling`: profile in all ways, read the reports, calibrate the tools, A/B proof.
+- `perf-remove-work`: is the work needed at all? Remove, skip, cache, conflate, batch, or move it.
+- `perf-memory`: allocations, arenas and monotonic buffers, page faults, huge pages.
+- `perf-io`: system calls, batching, io_uring, zero-copy, disk durability.
+- `perf-cpu`: top-down stalls, branches, SIMD, threads, PGO and LTO.
+- `perf-data-oriented-design`: cache misses, struct of arrays, hot/cold split, indices.
 - `perf-false-sharing`: threads that write data on the same cache line; `perf c2c`.
 
 ## Shared skills
