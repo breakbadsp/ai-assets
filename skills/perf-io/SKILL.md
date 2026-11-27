@@ -14,7 +14,7 @@ number of calls and device operations usually matters more than the bytes.
 
 | Question | Unprivileged | Root |
 | --- | --- | --- |
-| Is the cost in the kernel? | `thread_cpu.sh <pid>` (system %) in `perf-profiling` | `perf record -a -g` with kernel stacks |
+| Is the cost in the kernel? | `thread_cpu.sh` (system %; `perf-profiling`, section 5) | `perf record -a -g` with kernel stacks |
 | Which system calls, how many, how long? | `strace -c -f <cmd>`; `strace -f -T -e trace=<calls> -o trace.txt <cmd>` | `perf trace -s -p <pid>`; `syscount.bt` |
 | Bytes and calls per process | `/proc/<pid>/io` (`rchar`, `wchar`, `syscr`, `syscw`, `read_bytes`, `write_bytes`) | `pidstat -d 1` (sysstat) |
 | Disk latency and queue | `vmstat 1` (`wa`, `bi`, `bo`) | `biolatency.bt`, `biosnoop.bt`, `iostat -x 1` |
@@ -28,7 +28,7 @@ Notes:
   process that it starts.
 - The key ratio is **system calls per item**. If `strace -c` shows one
   `write` for each message, the batch is missing.
-- `strace -c` on `known_problems_demo.cpp` (`perf-profiling`) must show
+- `strace -c` on `known_problems_demo.cpp` (`perf-profiling`, section 8) must show
   about 200,000 `write` calls. Use it to check the tool.
 
 ## 2. Reduce I/O, in this order

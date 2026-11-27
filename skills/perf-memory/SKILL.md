@@ -36,7 +36,7 @@ How to read the heaptrack report:
 heaptrack slows the program a few times; DHAT and massif run it under
 Valgrind, which is much slower. Use them on a short run of the workload.
 
-Calibrate first: `known_problems_demo.cpp` in `perf-profiling` must show
+Calibrate first: `known_problems_demo.cpp` (`perf-profiling`, section 8) must show
 200,000 temporary allocations.
 
 ## 2. Remove allocations, in this order

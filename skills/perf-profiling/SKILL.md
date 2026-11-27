@@ -90,7 +90,7 @@ Read `/proc/sys/kernel/perf_event_paranoid` and
 Before you look at functions, find which thread or process limits the goal.
 
 ```bash
-thread_cpu.sh <pid> 3     # in this skill's directory
+bash "$HOME/ai/skills/perf-profiling/thread_cpu.sh" <pid> 3
 ```
 
 For each thread, the script prints user %, system %, run-queue wait %, and
@@ -182,10 +182,11 @@ thread, also measure the time it is blocked or waiting
 
 A tool that finds nothing proves nothing, until it has found a known problem
 on this machine. `known_problems_demo.cpp` in this skill's directory plants
-three problems. Build it and check each tool:
+three problems. Build it in a scratch directory and check each tool:
 
 ```bash
-g++ -std=c++26 -O2 -g -fno-omit-frame-pointer known_problems_demo.cpp -o demo
+g++ -std=c++26 -O2 -g -fno-omit-frame-pointer \
+  "$HOME/ai/skills/perf-profiling/known_problems_demo.cpp" -o demo
 strace -c -f ./demo > /dev/null                 # expect about 200,000 write calls
 heaptrack -o demo-heap ./demo > /dev/null        # then: heaptrack_print -f demo-heap.zst
 valgrind --tool=cachegrind --cache-sim=yes --cachegrind-out-file=cg.out ./demo > /dev/null

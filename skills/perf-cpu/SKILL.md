@@ -124,7 +124,7 @@ the CPUs that production uses: `-march=native` builds for this machine only.
 - **Pipeline with queues.** Stages connected by single-producer,
   single-consumer queues. Pass items in batches to amortize the handoff.
 - **Pin threads** to cores, and do not run more busy threads than cores.
-  `thread_cpu.sh` (`perf-profiling`) shows the run-queue wait.
+  `thread_cpu.sh` (`perf-profiling`, section 5) shows the run-queue wait.
 - **Find contention:** many voluntary context switches in `thread_cpu.sh`
   mean blocking. With root, use `perf lock` or off-CPU stacks. Atomic writes
   to shared cache lines show as HITM in `perf c2c` (`perf-false-sharing`).

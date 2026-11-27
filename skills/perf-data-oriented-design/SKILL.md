@@ -40,7 +40,7 @@ How to read the numbers:
 - `cachegrind` simulates the caches, so its counts repeat exactly. It runs
   about 50 times slower; use a short run.
 
-Calibrate: on `known_problems_demo.cpp` (`perf-profiling`), cachegrind must
+Calibrate: on `known_problems_demo.cpp` (`perf-profiling`, section 8), cachegrind must
 put 99.9% of the D1 misses on the line marked "problem 1".
 
 ## 2. Know the access pattern first

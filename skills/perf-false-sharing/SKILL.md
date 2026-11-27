@@ -26,11 +26,12 @@ time. If they do not, no HITM occurs.
 ## 1. Calibrate the tool
 
 A clean report proves nothing until the tool has found a known case on this
-machine. Build and record the demo in this skill's directory:
+machine. Build the demo of this skill in a scratch directory, and record it:
 
 ```bash
-g++ -O2 -g -pthread false_sharing_demo.cpp -o fs_shared
-g++ -O2 -g -pthread -DPAD=1 false_sharing_demo.cpp -o fs_padded
+demo="$HOME/ai/skills/perf-false-sharing/false_sharing_demo.cpp"
+g++ -O2 -g -pthread "$demo" -o fs_shared
+g++ -O2 -g -pthread -DPAD=1 "$demo" -o fs_padded
 ```
 
 Record each binary as in step 3. Expect these results:
