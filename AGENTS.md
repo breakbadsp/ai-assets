@@ -45,6 +45,15 @@ skill. The C++ rules are one skill per topic, in
 - `cpp-comments`: comments and test descriptions.
 - `cpp-checklist`: before C++ work is done, and in C++ review.
 
+## Performance
+
+Before you profile, read a profile, or claim a performance result, read the
+`perf-profiling` skill. The performance skills are one skill per topic, in
+`$HOME/ai/skills/perf-*/SKILL.md`:
+
+- `perf-profiling`: build, workload, tool choice, `perf stat` and `perf record` reports, A/B proof.
+- `perf-false-sharing`: threads that write data on the same cache line; `perf c2c`.
+
 ## Shared skills
 
 These skills apply to every project. Each is in `$HOME/ai/skills/<name>/SKILL.md`.

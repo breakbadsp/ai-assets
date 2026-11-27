@@ -12,6 +12,7 @@ packet, each sample, each request. The project says which code that is.
 - **Measure first** (Per.1, Per.2, Per.6). Make a quick estimate of
   network, disk, memory, and CPU during design. After that, change hot code
   only with a measurement, and report the before and after numbers.
+  `perf-profiling` tells how to measure.
 - **Do not allocate on the hot path.** Allocate and size buffers at startup
   or reload, then reuse them. Keep maps keyed by a stable key, so that they
   are not rebuilt each cycle. A project can permit other allocation points

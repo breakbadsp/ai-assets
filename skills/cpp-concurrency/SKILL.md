@@ -26,6 +26,7 @@ architecture rules say which threads exist.
 - Do not give another thread a lambda that captures by reference.
 - Prevent false sharing. If two threads each write their own variable
   frequently, put those variables on different cache lines (`alignas(64)`).
+  `perf-false-sharing` tells how to find it.
 
 ```cpp
 class Snapshot final
