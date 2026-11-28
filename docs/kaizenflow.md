@@ -80,6 +80,24 @@ Deep modules with narrow interfaces make proof cheaper: a type that keeps its fi
 
 Use `--list` to see the selection without running it, and `--base REF` to change the comparison point. In CI, fetch full history and pass the base: see `.github/workflows/checks.yml`.
 
+
+## Opening the PR with `/ship`
+
+[`/ship`](https://code.claude.com/docs/en/ship-command) is a Claude Code CLI command, from v2.1.330, in a local clone only. Cloud sessions do not have it. It can commit, push, open a GitHub pull request, run `/code-review` in the same session, and watch the PR to work on failing checks and comments. It does not merge. Once the PR is ready, you merge it yourself.
+
+KaizenFlow uses it only to open the PR and, briefly, to tend failing checks before the independent review. It does not replace `kaizen-reviewer` or `kaizen-merge.sh`.
+
+Reasons:
+
+- A fresh reviewer is cheap and accurate in the baseline, and it must not share the author's context. `/ship`'s `/code-review` runs in the session that wrote the code.
+- The watch can push after that review, which would leave an unreviewed head. The merge script takes a specific SHA, so the watch must stop before `kaizen-reviewer` starts, and must not run at merge.
+- "Push once" still applies to unfinished work. The watch may add CI fix-up pushes, but only before the independent review, and then it stops.
+- A watch uses your `gh` and `git` sign-ins and can lead to a merge if auto-merge is on, or if you type in auto mode and branch rules let you merge without another person. Merge stays a script so cancelled checks cannot pass, which is why `kaizen-merge.sh` exists.
+
+The organization product also called [Claude Ship](https://claude.com/resources/articles/introducing-claude-ship) (Code Review, PR Steward, and Claude Approvals, on Team and Enterprise plans) is separate. Do not turn on Claude Approvals or repository-wide PR Steward for KaizenFlow work: Approvals can approve outside this flow, and where PR Steward is already on a PR, a local `/steward` watch will not start.
+
+If `/ship` is missing or will not push, open the PR by hand, as before.
+
 ## Verify
 
 The expected gain is a target, not a result: at least 40% fewer weighted tokens per median run, with no rise in defects after merge.

@@ -51,7 +51,7 @@ Before code, write the proof plan in the PR body. Use the decision tables in `$H
 - At `deep`, write "x over y, and why" in the PR body first. If one fact decides the design and a cheap throwaway measurement exists, measure it.
 - Build in this session. Delegate to one fresh builder only when the work will clearly fill this context. Give it the goal, worktree, and branch. Ask it to return the PR URL, head SHA, and proof in a few lines. Keep the same builder for fixes.
 - Verify with `$HOME/ai/scripts/kaizen-checks.sh`. It maps the changed files and their blast radius to the checks in `.kaizen-checks`, and runs only those. Run it before the first push. CI runs the same script, so CI is the proof after that. If the repository has no `.kaizen-checks`, run its full check once before the first push.
-- Push once, when all code is written. Each push to an open PR starts a full CI run, and a run on unfinished code only slows the work. While you build, commit locally and run only the targeted tests. For a large change or a rewrite, push for backup only to a branch with no PR, and only when the repository CI does not run on branch pushes. Open the PR when the code is complete and `kaizen-checks.sh` passes.
+- Push once, when all code is written. Each push to an open PR starts a full CI run, and a run on unfinished code only slows the work. While you build, commit locally and run only the targeted tests. For a large change or a rewrite, push for backup only to a branch with no PR, and only when the repository CI does not run on branch pushes. Open the PR when the code is complete and `kaizen-checks.sh` passes. See "Open the PR".
 - Verification skills are part of the code. Find them in `.claude/skills/` (a `verify-<app>` skill with a feature map, and any skill that runs a model checker or prover).
   - A changed user feature: drive it with the verification skill and keep the evidence. Update its feature file in this PR.
   - A changed verified code path: run the formal check, then update the model, coverage, and sync commit in this PR.
@@ -59,9 +59,30 @@ Before code, write the proof plan in the PR body. Use the decision tables in `$H
 - Every proof must run the changed code and must be able to fail. Show a formal check fail once on a broken variant.
 - PR body, after the spec: the final proof plan, a proof table (criterion or invariant, proof, result), and the fact that makes the change safe.
 
+### Open the PR
+
+When this session is the Claude Code CLI (v2.1.330 or later) in a local clone of a github.com repository, and `gh` 2.63 or later is signed in, use `/ship` to push the finished branch and open the pull request. Documentation: https://code.claude.com/docs/en/ship-command
+
+Before `/ship`:
+
+- `kaizen-checks.sh` has passed, and the change is complete.
+- Prefer to commit locally first. Run `git status`. Stash or delete any file that must not be in the pull request. `/ship` can commit all uncommitted work, new files included.
+- Look inside the files for secrets. `/ship` only screens some names, such as `.env`.
+- In a public repository, `/ship` will not commit uncommitted changes. Commit on a branch other than the default branch first. If `/ship` refuses to push (some sessions will not push to a public repository), push and open the PR yourself.
+
+`/ship` does not use the repository's pull request template, and does not open a draft, a fork PR, or a PR on GitHub Enterprise. After it opens the PR, put the spec and the proof plan in the PR body at once.
+
+`/ship` then runs `/code-review` and starts a watch that can push fixes for that review, failing checks, conflicts, and comments. That review is not a substitute for `kaizen-reviewer`: it runs in this session, which wrote the code. Let the watch work on failing checks until CI is green, then type `/ship stop`. Start `kaizen-reviewer` only after the watch has stopped, on the then-current head SHA.
+
+Do not leave a watch running during or after review. A later push would be an unreviewed head, and `kaizen-merge.sh` merges only the reviewed SHA. After review fixes, push once yourself. Do not start `/steward` unless CI then fails; if you do, stop it before merge, and treat any new commits as unreviewed.
+
+Do not use `/ship`, `/steward`, auto-merge, or Claude Approvals to merge. `/ship` does not merge the PR itself, but a watch can still bring a merge about when auto-merge is on, or when you type in auto mode and branch rules let you merge without another person. Leave auto-merge off.
+
+If `/ship` is missing or commits or pushes nothing — a cloud or T3 session, an older Claude Code, `gh` missing or unsigned, a host other than github.com, or a checkout whose push remote is not GitHub — push the branch and open the PR yourself, then continue at Review.
+
 ## 3. Review
 
-Start `kaizen-reviewer` with the PR number, worktree path, and head SHA. Give it no opinion about the change. Prefer a model that did not write the code. A report for another head SHA is void.
+If a `/ship` or `/steward` watch is running, type `/ship stop` first. Start `kaizen-reviewer` with the PR number, worktree path, and head SHA. Give it no opinion about the change. Prefer a model that did not write the code. A report for another head SHA is void.
 
 The reviewer checks the spec and the proof first: a missing criterion, an invariant with no proof, or a proof that cannot fail. A gap in the proof is a `major`, even when the code looks right.
 
@@ -75,10 +96,11 @@ Fix in the context that wrote the code: this session, or the same builder. For a
 
 ## 5. Merge
 
-1. Read `gh pr view <PR> --comments`. Treat each user-raised issue as a finding.
-2. If the review found anything, post one PR comment with the findings, outcomes, and any commits that had no review.
-3. If the base moved and changed code that this PR depends on, update the branch.
-4. Run this in the background and wait once. Do not poll.
+1. Stop any `/ship` or `/steward` watch. Confirm the head SHA is the one that was reviewed.
+2. Read `gh pr view <PR> --comments`. Treat each user-raised issue as a finding.
+3. If the review found anything, post one PR comment with the findings, outcomes, and any commits that had no review.
+4. If the base moved and changed code that this PR depends on, update the branch.
+5. Run this in the background and wait once. Do not poll.
 
        $HOME/ai/scripts/kaizen-merge.sh <PR> <head SHA>
 
@@ -89,7 +111,7 @@ Fix in the context that wrote the code: this session, or the same builder. For a
 - At every stage, ask yourself, "If I own this codebase and must maintain it for its lifetime, will this decision keep the code easy to read, understand, and scale?" Use the answer to guide your decision. Include this question in every delegated task.
 - Never weaken a test, property, model, or verification journey to make it pass. A failure is a finding until you prove the check wrong.
 - Never merge with an open `blocker` or `major`, an open user-raised `critical` issue, or a failed or cancelled check.
-- Merge only through `kaizen-merge.sh`. Never use `--admin`, force push, or push to the base branch.
+- Merge only through `kaizen-merge.sh`. Never use `--admin`, force push, or push to the base branch. Never merge with `/ship`, `/steward`, auto-merge, or Claude Approvals.
 - At most two review rounds. At most one fix pass for failed checks. If an issue is still open after that, stop and report it for manual handling.
 - Reviewers never edit. No stage starts another `/kaizenflow` run.
 - If a result is ambiguous, stop and report.

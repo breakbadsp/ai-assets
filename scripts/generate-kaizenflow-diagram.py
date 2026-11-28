@@ -57,6 +57,7 @@ STAGES = [
             'No skill and more such changes ahead: create one in a separate PR first.',
             'Push once, when all code is written: local targeted tests until then.',
             'Run $HOME/ai/scripts/kaizen-checks.sh before the push. CI runs it too.',
+            'Open the PR with /ship when the CLI allows it, else by hand. Stop any watch before review.',
             'PR body: spec, proof table, and the safety fact.',
         ]),
     ]),
@@ -111,7 +112,7 @@ STAGES = [
         ('merge', 'EXACT HEAD', 'Merge the checked head', [
             'The script runs gh pr merge with --merge --match-head-commit <SHA>.',
             'Failed or cancelled checks stop the merge. Missing checks stop the normal CI route.',
-            'No --admin, force push, or push to the base branch.',
+            'No --admin, force push, push to the base branch, or merge via /ship or auto-merge.',
         ]),
     ]),
     ('FINISH', 'Every exit, including a stop, records a retrospective.', [
